@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
-        <x-nav-link :href="route('insights.index')" :active="true">
-            {{ __('Insight Data') }}
+        <x-nav-link :href="route('blogs.index')" :active="true">
+            {{ __('Blog Data') }}
         </x-nav-link>
     </x-slot>
     <div class="py-6">
@@ -10,32 +10,32 @@
                 <div class="grid md:grid-cols-2 gap-4 mb-4">
                     <div class="my-auto">
                         <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                            {{ __('Insights for Website') }}
+                            {{ __('Blogs for Website') }}
                         </h2>
                     </div>
-                    @can('create_insights')
+                    @can('create_blogs')
                     <div class="md:text-end">
-                        <x-button-link href="{{ route('insights.create') }}">
-                            Add New Insight
+                        <x-button-link href="{{ route('blogs.create') }}">
+                            Add New Blog
                         </x-button-link>
                     </div>
                     @endcan
                 </div>
-                @can('view_insights')
+                @can('view_blogs')
                     @php
                         // Build allowed actions based on permissions
                         $actions = [];
 
-                        if (auth()->user()->can('view_insights')) {
-                            $actions[] = ['type' => 'view', 'url' => 'insights.show', 'label' => 'View'];
+                        if (auth()->user()->can('view_blogs')) {
+                            $actions[] = ['type' => 'view', 'url' => 'blogs.show', 'label' => 'View'];
                         }
 
-                        if (auth()->user()->can('edit_insights')) {
-                            $actions[] = ['type' => 'edit', 'url' => 'insights.edit', 'label' => 'Edit'];
+                        if (auth()->user()->can('edit_blogs')) {
+                            $actions[] = ['type' => 'edit', 'url' => 'blogs.edit', 'label' => 'Edit'];
                         }
 
-                        if (auth()->user()->can('delete_insights')) {
-                            $actions[] = ['type' => 'delete', 'url' => 'insights.destroy', 'label' => 'Delete'];
+                        if (auth()->user()->can('delete_blogs')) {
+                            $actions[] = ['type' => 'delete', 'url' => 'blogs.destroy', 'label' => 'Delete'];
                         }
 
                         // Define table columns
@@ -43,15 +43,6 @@
                             ['label' => '#'],
                             ['label' => 'Title', 'key' => 'title'],
                             ['label' => 'Published Date', 'key' => 'published_at'],
-                            [
-                                'label' => 'Forbes',
-                                'key' => 'published_on_forbes',
-                                'badge' => true,
-                                'badgeMap' => [
-                                    '1' => ['text' => 'Yes', 'color' => 'bg-green-600 text-white'],
-                                    '0' => ['text' => 'No', 'color' => 'bg-red-600 text-white'],
-                                ],
-                            ],
                             [
                                 'label' => 'Featured',
                                 'key' => 'is_featured',
@@ -78,10 +69,10 @@
                         ->toArray();
                     @endphp
 
-                    <x-datatable :data="$insights" :columns="$columns" />
+                    <x-datatable :data="$blogs" :columns="$columns" />
                 @else
                     <div class="text-gray-600 dark:text-gray-300">
-                        You do not have permission to view insights.
+                        You do not have permission to view blogs.
                     </div>
                 @endcan
             </div>

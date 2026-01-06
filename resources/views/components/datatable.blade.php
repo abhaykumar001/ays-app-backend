@@ -28,14 +28,14 @@
                                     @php
                                         $imageUrl = $item->{$col['key']} ?? null;
                                     @endphp
-                                    @if($imageUrl)
+                                    @if ($imageUrl)
                                         <img src="{{ $imageUrl }}" alt="{{ $col['label'] }}" class="logoImg">
                                     @else
                                         <span class="text-gray-400">No Image</span>
                                     @endif
                                     {{-- Badge --}}
-                                    @elseif(isset($col['image']) && $col['image'] === true)
-                                    
+                                @elseif(isset($col['image']) && $col['image'] === true)
+
                                 @elseif(isset($col['badge']) && $col['badge'] === true)
                                     @php
                                         $value = $item[$col['key']] ?? '-';
@@ -66,28 +66,62 @@
                                                 <i class="bi bi-eye"></i> {{ $label }}
                                             </a>
                                         @elseif ($action['type'] === 'edit')
-                                            <a href="{{ route($routeName, $item['id']) }}"
-                                                class="text-blue-500 hover:underline mr-2">
-                                                <i class="bi bi-pencil-square"></i> {{ $label }}
-                                            </a>
+                                            @if (isset($action['click']))
+                                                {{-- Dispatch Alpine event --}}
+                                                <button type="button"
+                                                    class="text-blue-500 hover:underline cursor-pointer mr-2"
+                                                    @click.prevent="openEdit({{ $item['id'] }})">
+                                                    <i class="bi bi-pencil-square"></i> {{ $label }}
+                                                </button>
+                                            @else
+                                                <a href="{{ route($routeName, array_merge($action['params'] ?? [], [$item['id']])) }}"
+                                                    class="text-blue-500 hover:underline mr-2">
+                                                    <i class="bi bi-pencil-square"></i> {{ $label }}
+                                                </a>
+                                            @endif
                                         @elseif($action['type'] === 'delete')
-                                            <form method="POST" action="{{ route($routeName, $item['id']) }}"
-                                                class="inline-block"
+                                            <form method="POST"
+                                                action="{{ route($action['url'], array_merge($action['params'] ?? [], [$item['id']])) }}"
+                                                class="inline-block mr-2"
                                                 onsubmit="return confirm('Are you sure you want to delete this item?')">
+
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-500 hover:underline"><i
-                                                        class="bi bi-trash3"></i> {{ $label }}</button>
+
+                                                <button type="submit" class="text-red-500 hover:underline">
+                                                    <i class="bi bi-trash3"></i> {{ $action['label'] }}
+                                                </button>
                                             </form>
-                                        @elseif($action['type'] === 'unarchive')
-                                            <form method="POST" action="{{ route($routeName, $item['id']) }}"
-                                                class="inline-block"
-                                                onsubmit="return confirm('Are you sure you want to Un Archive this item?')">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit" class="text-green-500 hover:underline"><i
-                                                        class="bi bi-archive"></i> {{ $label }}</button>
-                                            </form>
+                                        @elseif($action['type'] === 'phase')
+                                            <a href="{{ route($routeName, $item['id']) }}"
+                                                class="text-yellow-500 hover:underline mr-2">
+                                                <i class="bi bi-list"></i> {{ $label }}
+                                            </a>
+                                        @elseif($action['type'] === 'highlight')
+                                            <a href="{{ route($routeName, $item['id']) }}"
+                                                class="text-violet-500 hover:underline mr-2">
+                                                <i class="bi bi-star"></i> {{ $label }}
+                                            </a>
+                                        @elseif($action['type'] === 'virtualTour')
+                                            <a href="{{ route($routeName, $item['id']) }}"
+                                                class=" text-emerald-500 hover:underline mr-2">
+                                                <i class="bi bi-camera-reels"></i> {{ $label }}
+                                            </a>
+                                        @elseif($action['type'] === 'unit')
+                                            <a href="{{ route($routeName, $item['id']) }}"
+                                                class="text-green-500 hover:underline mr-2">
+                                                <i class="bi bi-list"></i> {{ $label }}
+                                            </a>
+                                        @elseif($action['type'] === 'paymentPlan')
+                                            <a href="{{ route($routeName, $item['id']) }}"
+                                                class="text-orange-500 hover:underline mr-2">
+                                                <i class="bi bi-credit-card-2-front"></i> {{ $label }}
+                                            </a>
+                                        @elseif($action['type'] === 'constructionUpdate')
+                                            <a href="{{ route($routeName, $item['id']) }}"
+                                                class=" text-amber-500 hover:underline mr-2">
+                                                <i class="bi bi-building-gear"></i> {{ $label }}
+                                            </a>
                                         @endif
                                     @endforeach
 

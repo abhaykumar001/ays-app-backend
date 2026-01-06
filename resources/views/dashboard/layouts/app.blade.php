@@ -24,11 +24,12 @@
         <!-- Main content -->
         <div class="md:ml-72 flex-1 flex flex-col overflow-hidden transition-all duration-300"
             :class="{
-                'md:ml-64': sidebarOpen && !sidebarShrink,
+                'md:ml-72': sidebarOpen && !sidebarShrink,
                 'md:ml-20': sidebarOpen && sidebarShrink,
                 'md:ml-0': !
                     sidebarOpen
-            }">
+            }"
+            >
             <!-- Top nav -->
             @include('dashboard.layouts.navigation')
             <!-- Page content -->
@@ -83,37 +84,43 @@
     @stack('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const editorContainer = document.getElementById('editor');
-            const hiddenInput = document.getElementById('description');
+            // Select all editors
+            const editors = document.querySelectorAll('.editor');
 
-            if (!editorContainer || !hiddenInput) return; // exit if elements missing
+            editors.forEach(editorContainer => {
+                // Each editor should have a data-target pointing to its hidden input
+                const inputId = editorContainer.dataset.target;
+                const hiddenInput = document.getElementById(inputId);
 
-            const editor = new Quill('#editor', {
-                theme: 'snow',
-                placeholder: 'Enter description...',
-                modules: {
-                    toolbar: [
-                        [{
-                            header: [false, 1, 2, 3, 4, 5, 6]
-                        }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        ['link', 'image'],
-                        [{
-                            list: 'ordered'
-                        }, {
-                            list: 'bullet'
-                        }],
-                        ['clean']
-                    ]
-                }
-            });
+                if (!hiddenInput) return; // skip if input not found
 
-            // Initialize hidden input with editor content
-            hiddenInput.value = editor.root.innerHTML;
+                const editor = new Quill(editorContainer, {
+                    theme: 'snow',
+                    placeholder: 'Enter description...',
+                    modules: {
+                        toolbar: [
+                            [{
+                                header: [false, 1, 2, 3, 4, 5, 6]
+                            }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            ['link', 'image'],
+                            [{
+                                list: 'ordered'
+                            }, {
+                                list: 'bullet'
+                            }],
+                            ['clean']
+                        ]
+                    }
+                });
 
-            // Update hidden input whenever editor changes
-            editor.on('text-change', () => {
+                // Initialize hidden input with editor content
                 hiddenInput.value = editor.root.innerHTML;
+
+                // Update hidden input whenever editor changes
+                editor.on('text-change', () => {
+                    hiddenInput.value = editor.root.innerHTML;
+                });
             });
         });
     </script>

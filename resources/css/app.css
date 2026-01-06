@@ -27,3 +27,25 @@ h6 {
   font-style: normal;
   font-display: swap;
 }
+[x-cloak] { display: none; }
+.ts-control {
+  background-color: transparent !important;
+  padding-left: 0px !important;
+  border: 0px !important;
+}
+.richBoxHeight {
+     min-height:300px !important;
+    resize: vertical;
+    overflow: auto;
+}
+.datatable-container img {
+  height: auto;
+  width: 140px;
+  object-fit: contain;
+}
+
+.datatable-container img.logoImg {
+  height: auto;
+  width: 80px;
+  object-fit: contain;
+}

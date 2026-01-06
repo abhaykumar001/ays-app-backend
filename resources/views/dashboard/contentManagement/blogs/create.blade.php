@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
-        <x-nav-link :href="route('insights.index')" :active="true">
-            {{ __('Insights') }}
+        <x-nav-link :href="route('blogs.index')" :active="true">
+            {{ __('Blogs') }}
         </x-nav-link>
     </x-slot>
 
@@ -11,16 +11,16 @@
                 <div class="grid md:grid-cols-2 gap-4 mb-4">
                     <div class="my-auto">
                         <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                            {{ __('Create New Insight') }}
+                            {{ __('Create New Blog') }}
                         </h2>
                     </div>
                 </div>
 
-                <form method="POST" action="{{ route('insights.store') }}" class="mt-6 space-y-8"
+                <form method="POST" action="{{ route('blogs.store') }}" class="mt-6 space-y-8"
                     enctype="multipart/form-data">
                     @csrf
                     <div class="grid md:grid-cols-12 gap-5">
-                        <div class="md:col-span-9">
+                        <div class="md:col-span-12">
                             <x-input-label for="title" :value="__('Title')" />
                             <x-text-input id="title" name="title" type="text"
                                 class="mt-1 block w-full"
@@ -29,17 +29,11 @@
                         </div>
 
 
-                        <div class="md:col-span-3">
-                            <x-input-label for="published_at" :value="__('Published At')" />
-                            <x-text-input id="published_at" name="published_at" type="date"
-                                class="mt-1 block w-full"
-                                :value="old('published_at', date('Y-m-d'))" required />
-                            <x-input-error :messages="$errors->get('published_at')" class="mt-2" />
-                        </div>
+                        
                         <!-- Status -->
 
                         <div class="md:col-span-12">
-                            <x-input-label for="short_description" :value="__('Insight Short Description')" />
+                            <x-input-label for="short_description" :value="__('Blog Short Description')" />
                             <x-text-textarea id="short_description" name="short_description" class="mt-1 block w-full"
                                 autofocus required autocomplete="short_description">
                                 {{ old('short_description', '') }}
@@ -49,11 +43,7 @@
                         <div class="md:col-span-12">
                             <div class="">
                                 <x-input-label for="description" :value="__('Description')" />
-                                <!-- Quill editor container -->
-                                <div id="editor"
-                                    class="bg-white dark:bg-gray-700 text-white richBoxHeight rounded shadow-sm border">
-                                </div>
-
+                                <div class="bg-white dark:bg-gray-700 text-white richBoxHeight rounded shadow-sm border editor" data-target="description"></div>
                                 <!-- Hidden input to store HTML content -->
                                 <input type="hidden" required name="description" id="description"
                                     value="{{ old('description', '') }}">
@@ -82,22 +72,23 @@
                             <x-input-error :messages="$errors->get('meta_description')" class="mt-2" />
                         </div>
                         <div class="md:col-span-6">
-                            <x-input-label for="status" :value="__('Status')" />
-                            <x-select name="status" :options="['active' => 'Active', 'inactive' => 'Inactive', 'draft' => 'Draft']" :value="old('status', '')" />
-                            <x-input-error :messages="$errors->get('status')" class="mt-2" />
+                            <x-input-label for="is_active" :value="__('Status')" />
+                            <x-select name="is_active" :options="['true' => 'Active', 'false' => 'Inactive']" :value="old('is_active', 'true')" />
+                            <x-input-error :messages="$errors->get('is_active')" class="mt-2" />
                         </div>
                         <div class="md:col-span-6">
-                            <x-input-label for="image" :value="__('Insight Image')" />
+                            <x-input-label for="image" :value="__('Blog Image')" />
                             <x-text-input id="image" name="image" type="file" accept="image/*"
                                 class="mt-1 block w-full" required />
                             <x-input-error :messages="$errors->get('image')" class="mt-2" />
                         </div>
                         <!-- Published on Forbes -->
                         <div class="md:col-span-4">
-                            <x-input-label for="published_on_forbes" :value="__('Published on Forbes')" />
-                            <x-select name="published_on_forbes" :options="['1' => 'Yes', '0' => 'No']"
-                                :value="old('published_on_forbes', '0')" />
-                            <x-input-error :messages="$errors->get('published_on_forbes')" class="mt-2" />
+                            <x-input-label for="published_at" :value="__('Published At')" />
+                            <x-text-input id="published_at" name="published_at" type="date"
+                                class="mt-1 block w-full"
+                                :value="old('published_at', date('Y-m-d'))" required />
+                            <x-input-error :messages="$errors->get('published_at')" class="mt-2" />
                         </div>
 
                         <!-- Is Featured -->
@@ -108,10 +99,24 @@
                             <x-input-error :messages="$errors->get('is_featured')" class="mt-2" />
                         </div>
                         <div class="md:col-span-4">
-                            <x-input-label for="is_archived" :value="__('Add to Archive')" />
-                            <x-select name="is_archived" :options="['1' => 'Yes', '0' => 'No']"
-                                :value="old('is_archived', '0')" />
-                            <x-input-error :messages="$errors->get('is_archived')" class="mt-2" />
+                            <x-input-label for="author" :value="__('Author')" />
+                            <x-text-input id="author" name="author" type="text" class="mt-1 block w-full"
+                                :value="old('author', '')" autofocus  autocomplete="author" />
+                            <x-input-error :messages="$errors->get('author')" class="mt-2" />
+                        </div>
+
+                        <!-- Tags Selection -->
+                        <div class="md:col-span-12">
+                            <x-input-label for="tags" :value="__('Tags')" />
+                            <select id="tags" name="tags[]" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary dark:focus:border-primary focus:ring-primary-light dark:focus:ring-primary-light px-4 py-2 rounded-md shadow-sm" multiple placeholder="Select or type to add tags">
+                                @foreach ($tags as $tag)
+                                    <option value="{{ $tag->id }}"
+                                        {{ collect(old('tags'))->contains($tag->id) ? 'selected' : '' }}>
+                                        {{ $tag->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('tags')" class="mt-2" />
                         </div>
                     </div>
                     <!-- Submit -->
@@ -129,5 +134,55 @@
             </div>
         </div>
     </div>
+ <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ts = new TomSelect('#tags', {
+                create: true, // allow new tags
+                persist: false,
+                plugins: ['remove_button'], // add "x" to remove tags
+                onOptionAdd: function(value, data) {
+                    // Send new tag to server
+                    fetch('{{ route('tag.addNewTag') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                name: value
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            const newTag = data.newTag;
+                            const allTags = data.allTags;
+                            // Update the newly added option value
+                            const option = document.querySelector(`#tags option[value='${value}']`);
+                            if (option) option.value = newTag.id;
+                            // Save currently selected values
+                            const selectedValues = Array.from(ts.getValue());
+                            // Clear all options and add fresh tags
+                            ts.clearOptions();
+                            allTags.forEach(tag => {
+                                if (!ts.options.hasOwnProperty(tag.id)) {
+                                    ts.addOption({
+                                        value: tag.id,
+                                        text: tag.name
+                                    });
+                                }
+                            });
+
+                            // Restore selected values
+                            ts.setValue(selectedValues);
+                        })
+                        .catch(err => console.error(err));
+                },
+                onItemAdd:function(){
+			this.setTextboxValue('');
+			this.refreshOptions();
+		},
+            });
+        });
+    </script>
 
 </x-app-layout>

@@ -14,7 +14,10 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
-
+    'mapapi' => env('MAP_API', ''),
+    'mapiddark' => env('MAPID_DARK', ''),
+    'mapid' => env('MAPID', ''),
+    'mapDashboard' => env('MAP_ID_DASHBOARD', ''),
     /*
     |--------------------------------------------------------------------------
     | Application Environment

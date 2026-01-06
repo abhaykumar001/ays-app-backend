@@ -24,8 +24,12 @@ class PermissionSeeder extends Seeder
         $moduleActions = [];
 
         foreach ($routes as $route) {
-            $segments = explode('/', $route['uri']);
-            $module = isset($segments[1]) && $segments[1] != '' ? ucfirst($segments[1]) : 'Dashboard';
+            $segments = collect(explode('/', $route['uri']))
+                ->reject(fn($s) => $s === 'dashboard' || str_starts_with($s, '{'))
+                ->values();
+
+            $module = ucfirst(Str::camel($segments->last() ?? 'Dashboard'));
+
 
             $action = match ($route['method']) {
                 'GET' => 'view',
