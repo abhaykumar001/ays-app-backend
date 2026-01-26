@@ -26,7 +26,7 @@ return new class extends Migration
              * Project / Phase / Unit
              */
             $table->morphs('eventable');
-    // eventable_type, eventable_id
+            // eventable_type, eventable_id
 
             /**
              * Event details (proposal)

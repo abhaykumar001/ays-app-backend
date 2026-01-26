@@ -213,8 +213,8 @@
                         <x-input-label for="is_active" :value="__('Status')" />
                         <select id="is_active" name="is_active" x-model="form.is_active"
                             class="mt-1 border-r-8 border-gray-300 dark:border-gray-700 text-sm  w-full  dark:bg-gray-900 dark:text-gray-300 focus:border-primary dark:focus:border-primary focus:ring-primary-light dark:focus:ring-primary-light px-4 py-2 rounded-md shadow-sm">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
+                            <option :value="true">Active</option>
+                            <option :value="false">Inactive</option>
                         </select>
                         <x-input-error :messages="$errors->get('is_active')" class="mt-2" />
                     </div>

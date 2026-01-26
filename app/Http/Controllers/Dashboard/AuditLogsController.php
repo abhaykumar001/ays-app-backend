@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 
 class AuditLogsController extends Controller
@@ -12,7 +13,11 @@ class AuditLogsController extends Controller
      */
     public function index()
     {
-        //
+        $auditLogs = AuditLog::with('user')
+            ->latest()
+            ->paginate(20);
+
+        return view('dashboard.auditLogs.index', compact('auditLogs'));
     }
 
     /**
