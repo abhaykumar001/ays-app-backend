@@ -12,9 +12,16 @@
     });
 
     $matchesSearch = empty($search) || str_contains(strtolower($item['title']), strtolower($search));
+
+    // A parent group is only worth showing if at least one of its children is
+    // visible to the current user; a childless item needs its own permission
+    // (items with no 'permission' key, like Profile, are always visible).
+    $canShow = $hasChildren
+        ? collect($item['children'])->contains(fn ($child) => auth()->user()->can($child['permission'] ?? 'view_dashboard'))
+        : (!isset($item['permission']) || auth()->user()->can($item['permission']));
 @endphp
 
-@if ($matchesSearch)
+@if ($matchesSearch && $canShow)
 
     {{-- ================= PARENT ITEM ================= --}}
     @if ($hasChildren)

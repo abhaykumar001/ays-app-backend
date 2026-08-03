@@ -3,40 +3,25 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Viewing;
 use Illuminate\Http\Request;
 
 class ViewingsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:view_viewings')->only(['index']);
+        $this->middleware('permission:edit_viewings')->only(['edit', 'update']);
+        $this->middleware('permission:delete_viewings')->only(['destroy']);
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        $viewings = Viewing::with(['user', 'project', 'unit'])->orderBy('id', 'desc')->get();
+        return view('dashboard.viewings.index', compact('viewings'));
     }
 
     /**
@@ -44,7 +29,8 @@ class ViewingsController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $viewing = Viewing::with(['user', 'project', 'unit'])->findOrFail($id);
+        return view('dashboard.viewings.edit', compact('viewing'));
     }
 
     /**
@@ -52,7 +38,15 @@ class ViewingsController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = $request->validate([
+            'status' => 'required|in:pending,completed,cancelled',
+        ]);
+
+        Viewing::findOrFail($id)->update($validated);
+
+        return redirect()->route('viewings.index')
+            ->with('status', 'success')
+            ->with('message', 'Viewing updated successfully.');
     }
 
     /**
@@ -60,6 +54,10 @@ class ViewingsController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        Viewing::findOrFail($id)->delete();
+
+        return redirect()->back()
+            ->with('status', 'success')
+            ->with('message', 'Viewing deleted successfully.');
     }
 }

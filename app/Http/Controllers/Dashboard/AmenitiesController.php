@@ -41,15 +41,15 @@ class AmenitiesController extends Controller
         $amenity = new Amenity;
         $amenity->name = $request->name;
         $amenity->description = $request->description;
-        $amenity->status = $request->status;
+        $amenity->is_active = $request->boolean('is_active', true);
         $amenity->user_id = auth()->user()->id;
         $amenity->save();
 
         if ($request->hasFile('image')) {
-            $amenity->addMediaFromRequest('image')->toMediaCollection('images', 'amenityFiles');
+            $amenity->addMediaFromRequest('image')->toMediaCollection('images', 'public');
         }
         if ($request->hasFile('logo')) {
-            $amenity->addMediaFromRequest('logo')->toMediaCollection('logos', 'amenityFiles');
+            $amenity->addMediaFromRequest('logo')->toMediaCollection('logos', 'public');
         }
 
         return redirect()->route('amenities.index')
@@ -75,8 +75,8 @@ class AmenitiesController extends Controller
             'name' => $amenity->name,
             'description' => $amenity->description,
             'is_active' => $amenity->is_active,
-            'image' => $amenity->getFirstMediaUrl('images', 'webp'), // full URL if exists
-            'logo' => $amenity->getFirstMediaUrl('logos'), // full URL if exists
+            'image' => $amenity->getFirstMediaUrl('images', 'resize') ?: $amenity->getFirstMediaUrl('images'),
+            'logo'  => $amenity->getFirstMediaUrl('logos'),
         ]);
     }
 
@@ -88,17 +88,17 @@ class AmenitiesController extends Controller
         $amenity = Amenity::findorfail($id);
         $amenity->name = $request->name;
         $amenity->description = $request->description;
-        $amenity->is_active = $request->is_active;
+        $amenity->is_active = $request->boolean('is_active');
         $amenity->user_id = auth()->user()->id;
         $amenity->save();
 
         if ($request->hasFile('image')) {
             $amenity->clearMediaCollection('images');
-            $amenity->addMediaFromRequest('image')->toMediaCollection('images', 'amenityFiles');
+            $amenity->addMediaFromRequest('image')->toMediaCollection('images', 'public');
         }
         if ($request->hasFile('logo')) {
             $amenity->clearMediaCollection('logos');
-            $amenity->addMediaFromRequest('logo')->toMediaCollection('logos', 'amenityFiles');
+            $amenity->addMediaFromRequest('logo')->toMediaCollection('logos', 'public');
         }
 
         return redirect()->route('amenities.index')

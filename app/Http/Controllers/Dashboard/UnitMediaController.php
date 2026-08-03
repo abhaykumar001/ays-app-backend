@@ -28,7 +28,7 @@ class UnitMediaController extends Controller
             'title' => 'nullable|string|max:255',
             'type' => 'required|in:360,video,iframe,link',
             'url' => 'nullable|string|max:255',
-            'is_active' => 'required|boolean',
+            'is_active' => 'nullable|boolean',
             'file' => 'nullable|file|mimes:jpg,png,jpeg,mp4,zip',
         ]);
 
@@ -36,7 +36,7 @@ class UnitMediaController extends Controller
             'title' => $data['title'] ?? null,
             'type' => $data['type'],
             'url' => $data['url'] ?? null,
-            'is_active' => $data['is_active'],
+            'is_active' => $request->boolean('is_active', true),
         ]);
 
         if (!empty($data['file'])) {
@@ -60,7 +60,7 @@ class UnitMediaController extends Controller
             'title' => 'nullable|string|max:255',
             'type' => 'required|in:360,video,iframe,link',
             'url' => 'nullable|string|max:255',
-            'is_active' => 'required|boolean',
+            'is_active' => 'nullable|boolean',
             'file' => 'nullable|file|mimes:jpg,png,jpeg,mp4,zip',
         ]);
 
@@ -68,7 +68,7 @@ class UnitMediaController extends Controller
             'title' => $data['title'] ?? null,
             'type' => $data['type'],
             'url' => $data['url'] ?? null,
-            'is_active' => $data['is_active'],
+            'is_active' => $request->boolean('is_active', true),
         ]);
 
         if (!empty($data['file'])) {

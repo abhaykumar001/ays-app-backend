@@ -38,15 +38,12 @@
                             <x-input-error :messages="$errors->get('short_description')" class="mt-2" />
                         </div>
                         <div class="md:col-span-12">
-                            <div class="">
-                                <x-input-label for="description" :value="__('Description')" />
-                                <!-- Quill editor container -->
-                                 <div class="bg-white dark:bg-gray-700 text-white richBoxHeight rounded shadow-sm border editor" data-target="description">{!! $blog->description !!}</div>
-                                <!-- Hidden input to store HTML content -->
-                                <input type="hidden" required name="description" id="description">
-
-                                <x-input-error :messages="$errors->get('description')" class="mt-2" />
+                            <x-input-label for="description" :value="__('Description')" />
+                            <div class="ql-wrapper mt-1">
+                                <div class="richBoxHeight editor" data-target="description">{!! old('description', $blog->description) !!}</div>
                             </div>
+                            <input type="hidden" required name="description" id="description">
+                            <x-input-error :messages="$errors->get('description')" class="mt-2" />
                         </div>
                         <div class="md:col-span-12">
                             <x-input-label for="meta_title" :value="__('Meta Title')" />
@@ -70,7 +67,7 @@
                         </div>
                         <div class="md:col-span-6">
                             <x-input-label for="is_active" :value="__('Status')" />
-                            <x-select name="is_active" :options="['true' => 'Active', 'false' => 'Inactive']" :value="old('status',  $blog->status ?? '')" />
+                            <x-select name="is_active" :options="['1' => 'Active', '0' => 'Inactive']" :value="old('is_active', $blog->is_active ? '1' : '0')" />
                             <x-input-error :messages="$errors->get('is_active')" class="mt-2" />
                         </div>
                         <div class="md:col-span-6">
@@ -100,6 +97,13 @@
                             <x-select name="is_featured" :options="['1' => 'Yes', '0' => 'No']"
                                 :value="old('is_featured',  $blog->is_featured ?? '0')" />
                             <x-input-error :messages="$errors->get('is_featured')" class="mt-2" />
+                        </div>
+                        <!-- Author -->
+                        <div class="md:col-span-4">
+                            <x-input-label for="author" :value="__('Author')" />
+                            <x-text-input id="author" name="author" type="text" class="mt-1 block w-full"
+                                :value="old('author', $blog->author ?? '')" autocomplete="author" />
+                            <x-input-error :messages="$errors->get('author')" class="mt-2" />
                         </div>
                         <!-- Tags -->
                         <div class="md:col-span-12">

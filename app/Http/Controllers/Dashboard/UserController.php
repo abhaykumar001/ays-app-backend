@@ -13,7 +13,7 @@ class UserController extends Controller
     {
         $this->middleware('permission:view_user')->only(['index', 'show']);
         $this->middleware('permission:create_user')->only(['create', 'store']);
-        $this->middleware('permission:edit_user')->only(['edit', 'update']);
+        $this->middleware('permission:edit_user')->only(['edit', 'update', 'toggleStatus']);
         $this->middleware('permission:delete_user')->only(['destroy']);
     }
     /**
@@ -122,5 +122,19 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $user->delete();
         return redirect()->back()->with('status', 'success')->with('message', 'User deleted successfully.');
+    }
+
+    /**
+     * Toggle a user's active status (e.g. reactivate a self-deleted client account).
+     */
+    public function toggleStatus(string $id)
+    {
+        $user = User::findOrFail($id);
+        $user->is_active = ! $user->is_active;
+        $user->save();
+
+        $status = $user->is_active ? 'activated' : 'deactivated';
+
+        return redirect()->back()->with('status', 'success')->with('message', "User {$status} successfully.");
     }
 }

@@ -42,15 +42,11 @@ class PaymentPlansController extends Controller
             'installments.*.amount' => 'required_with:installments|numeric',
             'down_payment' => 'nullable|numeric',
             'total_price' => 'nullable|numeric',
-            'is_offer' => 'required|boolean',
-            'is_active' => 'required|boolean',
+            'is_offer' => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
             'payment_plan_file' => 'nullable|file|mimes:pdf,doc,docx,xlsx',
         ]);
 
-        if ($request->hasFile('payment_plan_file')) {
-            $data['file'] = $request->addMediaFromRequest('payment_plan_file')
-                ->toMediaCollection('payment_plans');
-        }
         // Convert arrays to JSON
         $data['payment_breakdown'] = $data['payment_breakdown'] ?? [];
         $data['installments'] = $data['installments'] ?? [];
@@ -62,10 +58,15 @@ class PaymentPlansController extends Controller
             'installments' => $data['installments'],
             'down_payment' => $data['down_payment'] ?? null,
             'total_price' => $data['total_price'] ?? null,
-            'is_offer' => $data['is_offer'],
-            'is_active' => $data['is_active'],
-            'file' => $data['file'] ?? null,
+            'is_offer' => $request->boolean('is_offer'),
+            'is_active' => $request->boolean('is_active', true),
+            'file' => null,
         ]);
+
+        if ($request->hasFile('payment_plan_file')) {
+            $paymentPlan->addMediaFromRequest('payment_plan_file')
+                ->toMediaCollection('payment_plans');
+        }
 
         return redirect()->back()->with('success', 'Payment Plan created successfully.');
     }
@@ -102,8 +103,8 @@ class PaymentPlansController extends Controller
             'installments.*.amount' => 'required_with:installments|numeric',
             'down_payment' => 'nullable|numeric',
             'total_price' => 'nullable|numeric',
-            'is_offer' => 'required|boolean',
-            'is_active' => 'required|boolean',
+            'is_offer' => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
             'payment_plan_file' => 'nullable|file|mimes:pdf,doc,docx,xlsx',
         ]);
 
@@ -114,9 +115,11 @@ class PaymentPlansController extends Controller
                 ->toMediaCollection('payment_plans');
         }
 
-        // Update arrays
+        // Update arrays and booleans
         $data['payment_breakdown'] = $data['payment_breakdown'] ?? [];
         $data['installments'] = $data['installments'] ?? [];
+        $data['is_offer'] = $request->boolean('is_offer');
+        $data['is_active'] = $request->boolean('is_active', true);
 
         $paymentPlan->update($data);
 

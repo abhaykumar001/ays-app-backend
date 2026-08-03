@@ -44,4 +44,10 @@
             </x-primary-button>
         </div>
     </form>
+
+    <div class="mt-6 pt-4 border-t border-gray-200 text-center text-xs text-gray-500 space-x-3">
+        <a href="{{ route('legal.privacy') }}" class="underline hover:text-gray-700">{{ __('Privacy Policy') }}</a>
+        <span>&middot;</span>
+        <a href="{{ route('legal.terms') }}" class="underline hover:text-gray-700">{{ __('Terms & Conditions') }}</a>
+    </div>
 </x-guest-layout>

@@ -92,6 +92,22 @@
                                                     <i class="bi bi-trash3"></i> {{ $action['label'] }}
                                                 </button>
                                             </form>
+                                        @elseif($action['type'] === 'toggleStatus')
+                                            @php
+                                                $isActive = data_get($item, $action['statusKey'] ?? 'is_active');
+                                            @endphp
+                                            <form method="POST"
+                                                action="{{ route($action['url'], array_merge($action['params'] ?? [], [$item['id']])) }}"
+                                                class="inline-block mr-2"
+                                                onsubmit="return confirm('{{ $isActive ? 'Deactivate this user?' : 'Activate this user?' }}')">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                    class="{{ $isActive ? 'text-red-500' : 'text-green-500' }} hover:underline">
+                                                    <i class="bi {{ $isActive ? 'bi-slash-circle' : 'bi-check-circle' }}"></i>
+                                                    {{ $isActive ? 'Deactivate' : 'Activate' }}
+                                                </button>
+                                            </form>
                                         @elseif($action['type'] === 'phase')
                                             <a href="{{ route($routeName, $item['id']) }}"
                                                 class="text-yellow-500 hover:underline mr-2">
@@ -121,6 +137,11 @@
                                             <a href="{{ route($routeName, $item['id']) }}"
                                                 class=" text-amber-500 hover:underline mr-2">
                                                 <i class="bi bi-building-gear"></i> {{ $label }}
+                                            </a>
+                                        @elseif($action['type'] === 'offer')
+                                            <a href="{{ route($routeName, $item['id']) }}"
+                                                class="text-pink-500 hover:underline mr-2">
+                                                <i class="bi bi-tags"></i> {{ $label }}
                                             </a>
                                         @endif
                                     @endforeach

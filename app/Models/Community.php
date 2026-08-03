@@ -111,7 +111,7 @@ class Community extends Model implements HasMedia
 
     public function amenities()
     {
-        return $this->belongsToMany(Amenity::class, 'project_amenities', 'project_id', 'amenity_id');
+        return $this->morphToMany(Amenity::class, 'amenable', 'amenables', 'amenable_id', 'amenity_id');
     }
     public function nearbyPlaces()
     {

@@ -123,8 +123,10 @@
                     <!-- Description -->
                     <div>
                         <x-input-label for="description" :value="'Description'" />
-                        <x-text-textarea id="description" name="description"
-                                         x-model="form.description" class="mt-1 block w-full"></x-text-textarea>
+                        <div id="cu-description-editor"
+                             class="mt-1 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
+                             style="min-height:140px"></div>
+                        <input type="hidden" name="description" id="cu-description-input" />
                     </div>
 
                     <!-- Media Type -->
@@ -138,11 +140,34 @@
 
                     <!-- File -->
                     <div x-show="mediaType === 'file'" x-cloak>
-                        <x-input-label for="file" :value="'Upload File'" />
-                        <div class="mb-2" x-show="filePreview" x-transition>
-                            <a :href="filePreview" target="_blank" class="text-primary underline">View current file</a>
-                        </div>
-                        <x-text-input id="file" name="file" type="file" class="mt-1 block w-full" @change="previewFile" />
+                        <x-input-label for="files" :value="'Upload Images / Videos'" />
+
+                        <!-- Existing media (edit mode) -->
+                        <template x-if="existingMedia.length">
+                            <div class="mb-2 grid grid-cols-3 gap-2">
+                                <template x-for="media in existingMedia" :key="media.id">
+                                    <div class="relative group">
+                                        <img :src="media.url" class="w-full h-20 object-cover rounded border border-gray-300 dark:border-gray-700">
+                                        <button type="button" @click="removeExistingMedia(media.id)"
+                                            class="absolute top-1 right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs leading-none opacity-90 hover:opacity-100">
+                                            &times;
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <!-- New file previews -->
+                        <template x-if="newFilePreviews.length">
+                            <div class="mb-2 grid grid-cols-3 gap-2">
+                                <template x-for="(src, idx) in newFilePreviews" :key="idx">
+                                    <img :src="src" class="w-full h-20 object-cover rounded border border-gray-300 dark:border-gray-700">
+                                </template>
+                            </div>
+                        </template>
+
+                        <x-text-input id="files" name="files[]" type="file" multiple accept="image/*,video/*" class="mt-1 block w-full" @change="previewFiles" />
+                        <p class="text-xs text-gray-500 mt-1">You can select multiple images. New files are added to the existing gallery.</p>
                     </div>
 
                     <!-- Link -->
@@ -177,10 +202,12 @@
                     show: false,
                     isEdit: false,
                     projectId: {{ $project->id }},
+                    currentUpdateId: null,
                     createUrl: "{{ route('projects.constructionUpdates.store', $project) }}",
                     updateUrl: "",
                     mediaType: 'file',
-                    filePreview: null,
+                    existingMedia: [],
+                    newFilePreviews: [],
                     form: {
                         title: '',
                         stage: '',
@@ -188,17 +215,23 @@
                         update_date: '',
                         description: '',
                         is_active: 1,
-                        file: null,
                         link: '',
                     },
                     openCreate() {
                         this.isEdit = false;
                         this.reset();
                         this.show = true;
+                        this.$nextTick(() => {
+                            if (window.cuQuill) {
+                                window.cuQuill.setText('');
+                                document.getElementById('cu-description-input').value = '';
+                            }
+                        });
                     },
                     openEdit(id) {
                         this.isEdit = true;
                         this.show = true;
+                        this.currentUpdateId = id;
                         this.updateUrl = `/dashboard/projects/${this.projectId}/constructionUpdates/${id}`;
 
                         fetch(`/dashboard/projects/${this.projectId}/constructionUpdates/${id}/edit`, {
@@ -206,19 +239,34 @@
                         }).then(res => res.json())
                           .then(data => {
                               this.form = data;
-                              if(data.file_url) {
-                                  this.mediaType = 'file';
-                                  this.filePreview = data.file_url;
-                              } else if(data.link) {
-                                  this.mediaType = 'link';
-                              }
+                              this.existingMedia = data.media_items || [];
+                              this.newFilePreviews = [];
+                              this.mediaType = (!this.existingMedia.length && data.link) ? 'link' : 'file';
+                              this.$nextTick(() => {
+                                  if (window.cuQuill) {
+                                      window.cuQuill.clipboard.dangerouslyPasteHTML(data.description || '');
+                                      document.getElementById('cu-description-input').value = data.description || '';
+                                  }
+                              });
                           }).catch(err => { console.error(err); this.close(); });
                     },
-                    previewFile(event) {
-                        const file = event.target.files[0];
-                        if(!file) return;
-                        this.filePreview = URL.createObjectURL(file);
-                        this.form.file = file;
+                    previewFiles(event) {
+                        const files = Array.from(event.target.files || []);
+                        this.newFilePreviews = files
+                            .filter(f => f.type.startsWith('image/'))
+                            .map(f => URL.createObjectURL(f));
+                    },
+                    removeExistingMedia(mediaId) {
+                        if (!confirm('Remove this image?')) return;
+                        const token = document.querySelector('meta[name="csrf-token"]').content;
+                        fetch(`/dashboard/projects/${this.projectId}/constructionUpdates/${this.currentUpdateId}/media/${mediaId}`, {
+                            method: 'DELETE',
+                            headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+                        }).then(res => {
+                            if (res.ok) {
+                                this.existingMedia = this.existingMedia.filter(m => m.id !== mediaId);
+                            }
+                        }).catch(err => console.error(err));
                     },
                     close() {
                         this.show = false;
@@ -231,15 +279,44 @@
                             update_date: '',
                             description: '',
                             is_active: 1,
-                            file: null,
                             link: '',
                         };
                         this.mediaType = 'file';
-                        this.filePreview = null;
+                        this.currentUpdateId = null;
+                        this.existingMedia = [];
+                        this.newFilePreviews = [];
                     }
                 }
             }
         </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cuEditor = new Quill('#cu-description-editor', {
+                theme: 'snow',
+                placeholder: 'Write update description…',
+                modules: {
+                    toolbar: [
+                        [{ header: [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline'],
+                        [{ color: [] }],
+                        [{ list: 'ordered' }, { list: 'bullet' }],
+                        ['blockquote'],
+                        ['link', 'image'],
+                        ['clean']
+                    ]
+                }
+            });
+
+            const cuInput = document.getElementById('cu-description-input');
+            cuInput.value = cuEditor.root.innerHTML;
+            cuEditor.on('text-change', () => {
+                cuInput.value = cuEditor.root.innerHTML;
+            });
+
+            window.cuQuill = cuEditor;
+        });
+    </script>
 
     </div>
 </x-app-layout>

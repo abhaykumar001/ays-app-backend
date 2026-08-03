@@ -163,13 +163,13 @@
                     </div>
                     <!-- Status -->
                     <div>
-                        <x-input-label for="status" :value="__('Status')" />
-                        <select id="status" name="status" x-model="form.is_active"
+                        <x-input-label for="is_active" :value="__('Status')" />
+                        <select id="is_active" name="is_active" x-model="form.is_active"
                             class="mt-1 border-r-8 border-gray-300 dark:border-gray-700 text-sm  w-full  dark:bg-gray-900 dark:text-gray-300 focus:border-primary dark:focus:border-primary focus:ring-primary-light dark:focus:ring-primary-light px-4 py-2 rounded-md shadow-sm">
-                            <option value="true">Active</option>
-                            <option value="false">Inactive</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
                         </select>
-                        <x-input-error :messages="$errors->get('status')" class="mt-2" />
+                        <x-input-error :messages="$errors->get('is_active')" class="mt-2" />
                     </div>
 
                     <!-- Buttons -->
@@ -198,7 +198,7 @@
                     form: {
                         name: oldData.name ?? '',
                         description: oldData.description ?? '',
-                        status: oldData.status ?? 'active',
+                        is_active: oldData.is_active ?? 1,
                     },
 
 
@@ -229,10 +229,10 @@
                                 this.form = {
                                     name: team.name,
                                     description: team.description,
-                                    status: team.status,
+                                    is_active: team.is_active ? 1 : 0,
                                 };
-                                this.imagePreview = team.image ?? null;
-                                this.logoPreview = team.logo ?? null;
+                                this.imagePreview = team.image || null;
+                                this.logoPreview = team.logo || null;
                             })
                             .catch(err => {
                                 console.error('Error fetching team:', err);
@@ -264,7 +264,7 @@
                         this.form = {
                             name: '',
                             description: '',
-                            status: 'active',
+                            is_active: 1,
                         };
                         this.imagePreview = null;
                         this.logoPreview = null;

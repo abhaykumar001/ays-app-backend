@@ -40,7 +40,31 @@
                             </x-text-textarea>
                             <x-input-error :messages="$errors->get('short_description')" class="mt-2" />
                         </div>
-                        
+                        <div class="md:col-span-12">
+                            <x-input-label for="description" :value="__('Long Description (shown on Project Detail page)')" />
+                            <x-text-textarea id="description" name="description" class="mt-1 block w-full"
+                                autocomplete="description">
+                                {{ old('description', '') }}
+                            </x-text-textarea>
+                            <x-input-error :messages="$errors->get('description')" class="mt-2" />
+                        </div>
+
+                        {{-- Amenities --}}
+                        <div class="md:col-span-12">
+                            <x-input-label for="amenities" :value="__('Amenities')" />
+                            <select id="amenities" name="amenities[]" multiple
+                                class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary dark:focus:border-primary focus:ring-primary-light dark:focus:ring-primary-light px-4 py-2 rounded-md shadow-sm"
+                                placeholder="Select amenities">
+                                @foreach ($amenities as $amenity)
+                                    <option value="{{ $amenity->id }}"
+                                        {{ collect(old('amenities'))->contains($amenity->id) ? 'selected' : '' }}>
+                                        {{ $amenity->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('amenities')" class="mt-2" />
+                        </div>
+
                         <div class="md:col-span-4">
                             <x-input-label for="starting_price" :value="__('Starting Price')" />
                             <x-text-input id="starting_price" name="starting_price" type="text" class="mt-1 block w-full"

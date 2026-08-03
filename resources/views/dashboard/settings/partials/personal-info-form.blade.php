@@ -50,6 +50,30 @@
                      autocomplete="username" :disabled="!$canEdit" />
                 <x-input-error class="mt-2" :messages="$errors->get('linkedin')" />
             </div>
+            <div>
+                <x-input-label for="youtube" :value="__('YouTube')" />
+                <x-text-input id="youtube" name="youtube" type="url" class="mt-1 block w-full" :value="old('youtube', $settingsArr['youtube'] ?? '')"
+                     autocomplete="username" :disabled="!$canEdit" />
+                <x-input-error class="mt-2" :messages="$errors->get('youtube')" />
+            </div>
+            <div>
+                <x-input-label for="twitter" :value="__('X (Twitter)')" />
+                <x-text-input id="twitter" name="twitter" type="url" class="mt-1 block w-full" :value="old('twitter', $settingsArr['twitter'] ?? '')"
+                     autocomplete="username" :disabled="!$canEdit" />
+                <x-input-error class="mt-2" :messages="$errors->get('twitter')" />
+            </div>
+            <div>
+                <x-input-label for="pinterest" :value="__('Pinterest')" />
+                <x-text-input id="pinterest" name="pinterest" type="url" class="mt-1 block w-full" :value="old('pinterest', $settingsArr['pinterest'] ?? '')"
+                     autocomplete="username" :disabled="!$canEdit" />
+                <x-input-error class="mt-2" :messages="$errors->get('pinterest')" />
+            </div>
+            <div>
+                <x-input-label for="tiktok" :value="__('TikTok')" />
+                <x-text-input id="tiktok" name="tiktok" type="url" class="mt-1 block w-full" :value="old('tiktok', $settingsArr['tiktok'] ?? '')"
+                     autocomplete="username" :disabled="!$canEdit" />
+                <x-input-error class="mt-2" :messages="$errors->get('tiktok')" />
+            </div>
         </div>
         @if($canEdit) 
         <div class="flex flex-col items-center justify-center gap-4">

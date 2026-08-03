@@ -61,9 +61,9 @@ return [
         'icon' => 'bi bi-journal-bookmark',
         'permissions' => ['view_reservations', 'view_payments', 'view_cancellations'],
         'children' => [
-            ['title' => 'Reservations', 'route' => 'bookings.reservations', 'icon' => 'bi bi-card-checklist', 'permission' => 'view_reservations'],
+            ['title' => 'Reservations', 'route' => 'reservations.index', 'icon' => 'bi bi-card-checklist', 'permission' => 'view_reservations'],
             ['title' => 'Payments', 'route' => 'bookings.payments', 'icon' => 'bi bi-wallet', 'permission' => 'view_payments'],
-            ['title' => 'Cancel / Release Units', 'route' => 'bookings.cancellations', 'icon' => 'bi bi-x-circle', 'permission' => 'view_cancellations'],
+            ['title' => 'Cancel / Release Units', 'route' => 'cancellations.index', 'icon' => 'bi bi-x-circle', 'permission' => 'view_cancellations'],
         ],
     ],
 
@@ -73,9 +73,9 @@ return [
         'icon' => 'bi bi-calendar-event',
         'permissions' => ['request_event', 'view_events', 'view_event_registrations'],
         'children' => [
-            ['title' => 'Request to Host Event', 'route' => 'events.requests', 'icon' => 'bi bi-pencil-square', 'permission' => 'request_event'],
+            ['title' => 'Request to Host Event', 'route' => 'requests.index', 'icon' => 'bi bi-pencil-square', 'permission' => 'request_event'],
             ['title' => 'All Events', 'route' => 'events.index', 'icon' => 'bi bi-calendar-check', 'permission' => 'view_events'],
-            ['title' => 'Event Registrations', 'route' => 'events.registrations', 'icon' => 'bi bi-people', 'permission' => 'view_event_registrations'],
+            ['title' => 'Event Registrations', 'route' => 'registrations.index', 'icon' => 'bi bi-people', 'permission' => 'view_event_registrations'],
         ],
     ],
     // Leads / Enquiries
@@ -101,7 +101,7 @@ return [
         'title' => 'Buyers',
         'icon' => 'bi bi-people-fill',
         'route' => 'buyers.index',
-        'permissions' => 'view_buyers',
+        'permission' => 'view_buyers',
     ],
     // Construction Updates
     // [
@@ -117,11 +117,16 @@ return [
         'icon' => 'bi bi-substack',
         'permissions' => ['view_blogs', 'view_tags', 'view_market_insights', 'view_announcements', 'view_offers'],
         'children' => [
+            ['title' => 'AYS News', 'route' => 'news.index', 'icon' => 'bi bi-newspaper', 'permission' => 'view_news'],
+            ['title' => 'AYS Kiosk Slides', 'route' => 'kioskSlides.index', 'icon' => 'bi bi-images', 'permission' => 'view_kiosk_slides'],
+            ['title' => 'Team Members', 'route' => 'teamMembers.index', 'icon' => 'bi bi-people', 'permission' => 'view_team_members'],
+            ['title' => 'Team Categories', 'route' => 'teamMemberCategories.index', 'icon' => 'bi bi-diagram-3', 'permission' => 'view_team_member_categories'],
             ['title' => 'Tags', 'route' => 'tags.index', 'icon' => 'bi bi-tags', 'permission' => 'view_tags'],
             ['title' => 'Blogs', 'route' => 'blogs.index', 'icon' => 'bi bi-journal-text', 'permission' => 'view_blogs'],
             ['title' => 'Market Insights', 'route' => 'marketInsights.index', 'icon' => 'bi bi-newspaper', 'permission' => 'view_market_insights'],
             ['title' => 'Announcements', 'route' => 'announcements.index', 'icon' => 'bi bi-megaphone', 'permission' => 'view_announcements'],
             ['title' => 'Offers', 'route' => 'offers.index', 'icon' => 'bi bi-broadcast', 'permission' => 'view_offers'],
+            ['title' => 'Design Philosophy', 'route' => 'design-philosophy.edit', 'icon' => 'bi bi-brush', 'permission' => 'view_design_philosophy'],
         ],
     ],
     // Notifications / Alerts
@@ -144,7 +149,7 @@ return [
             ],
             [
                 'title' => 'Notification Settings',
-                'route' => 'notifications.settings',
+                'route' => 'settings.index',
                 'icon' => 'bi bi-gear',
                 'permission' => 'manage_notification_settings',
             ],

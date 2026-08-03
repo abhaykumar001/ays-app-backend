@@ -27,12 +27,10 @@ class RoleController extends Controller
         return view('dashboard.roles.index', compact('roles', 'permissionsByModule'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $permissionsByModule = Permission::all()->groupBy('module');
+        return view('dashboard.roles.index', compact('permissionsByModule'));
     }
 
     /**
@@ -64,20 +62,20 @@ class RoleController extends Controller
     }
 
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        //
+        $role = Role::with('permissions')->findOrFail($id);
+        return response()->json($role);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
-        //
+        $role = Role::with('permissions')->findOrFail($id);
+        return response()->json([
+            'id'          => $role->id,
+            'name'        => $role->name,
+            'permissions' => $role->permissions->pluck('id'),
+        ]);
     }
 
     /**

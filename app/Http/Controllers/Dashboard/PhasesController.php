@@ -62,7 +62,7 @@ class PhasesController extends Controller
             'accommodations'=> 'array',
         ]);
 
-        $data['slug'] = $data['slug']
+        $data['slug'] = ($data['slug'] ?? null)
             ? Str::slug($data['slug'])
             : Str::slug($data['name']);
 
@@ -118,7 +118,7 @@ class PhasesController extends Controller
             'accommodations'=> 'array',
         ]);
 
-        $data['slug'] = $data['slug']
+        $data['slug'] = ($data['slug'] ?? null)
             ? Str::slug($data['slug'])
             : Str::slug($data['name']);
 

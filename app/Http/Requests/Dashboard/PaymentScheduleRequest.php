@@ -11,7 +11,7 @@ class PaymentScheduleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return auth()->check();
     }
 
     /**

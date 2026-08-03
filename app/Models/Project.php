@@ -18,23 +18,45 @@ class Project extends Model implements HasMedia
     protected $fillable = [
         'name',
         'slug',
+        'project_code',
+        'project_status',
+        'sales_status',
+        'community_id',
+        'sub_community',
         'city',
-        'short_description',
-        'description',
-        'is_active',
-        'starting_price',
-        'roi',
-        'growth',
-        'category',
         'address',
         'latitude',
         'longitude',
+        'starting_price',
+        'price_per_sqft',
+        'total_units',
+        'available_units',
+        'construction_progress',
+        'roi',
+        'ownership_type',
+        'bedrooms',
+        'bathrooms',
+        'min_size',
+        'max_size',
+        'launch_date',
+        'handover',
+        'handover_date',
+        'short_description',
+        'title_description',
+        'quote_description',
+        'materiality_title',
+        'materiality_description',
+        'description',
+        'is_featured',
+        'is_new_launch',
+        'is_hot_selling',
         'meta_title',
         'meta_description',
         'meta_keywords',
         'sort_order',
-        'is_featured',
+        'is_active',
         'user_id',
+        'virtual_tour_url',
     ];
     /**
      * The dates attributes
@@ -136,10 +158,14 @@ class Project extends Model implements HasMedia
     {
         return $this->hasMany(PaymentPlan::class);
     }
+    public function offers()
+    {
+        return $this->hasMany(ProjectOffer::class);
+    }
 
     public function amenities()
     {
-        return $this->belongsToMany(Amenity::class, 'project_amenities', 'project_id', 'amenity_id');
+        return $this->morphToMany(Amenity::class, 'amenable', 'amenables', 'amenable_id', 'amenity_id');
     }
     public function accommodations()
     {

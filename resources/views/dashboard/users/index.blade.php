@@ -26,12 +26,22 @@
                         ['label' => '#'],
                         ['label' => 'name', 'key' => 'name'],
                         ['label' => 'role', 'key' => 'roles->first()?->name'],
+                        [
+                            'label' => 'Status',
+                            'key' => 'is_active',
+                            'badge' => true,
+                            'badgeMap' => [
+                                1 => ['text' => 'Active', 'color' => 'bg-green-500 text-white'],
+                                0 => ['text' => 'Deactivated', 'color' => 'bg-red-500 text-white'],
+                            ],
+                        ],
                     ];
 
                     $actions = [];
 
                     if (auth()->user()->can('edit_user')) {
                         $actions[] = ['type' => 'edit', 'url' => 'user.edit', 'label' => 'Edit'];
+                        $actions[] = ['type' => 'toggleStatus', 'url' => 'user.toggleStatus', 'label' => 'Toggle Status'];
                     }
 
                     if (auth()->user()->can('delete_user')) {

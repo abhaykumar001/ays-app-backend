@@ -12,7 +12,7 @@ use Spatie\Sluggable\SlugOptions;
 use Tonysm\RichTextLaravel\Models\Traits\HasRichText;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class MarketInsight extends Model
+class MarketInsight extends Model implements HasMedia
 {
     use HasFactory, SoftDeletes, InteractsWithMedia, HasRichText, HasSlug;
 
@@ -20,7 +20,7 @@ class MarketInsight extends Model
         'title',
         'slug',
         'short_description',
-        'status',
+        'is_active',
         'is_featured',
         'author',
         'meta_title',
@@ -28,6 +28,12 @@ class MarketInsight extends Model
         'meta_keywords',
         'published_at',
         'user_id',
+    ];
+
+    protected $casts = [
+        'published_at' => 'date',
+        'is_active'    => 'boolean',
+        'is_featured'  => 'boolean',
     ];
     /**
      * The dates attributes

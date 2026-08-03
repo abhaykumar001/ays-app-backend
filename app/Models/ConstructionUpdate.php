@@ -23,7 +23,13 @@ class ConstructionUpdate extends Model implements HasMedia
         'is_active',
         'created_by',
         'sort_order',
+        'link',
     ];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('updates')->useDisk('public');
+    }
 
     public function updatable()
     {

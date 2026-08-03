@@ -20,7 +20,7 @@ class Blog extends Model implements HasMedia
         'title',
         'slug',
         'short_description',
-        'status',
+        'is_active',
         'is_featured',
         'author',
         'meta_title',

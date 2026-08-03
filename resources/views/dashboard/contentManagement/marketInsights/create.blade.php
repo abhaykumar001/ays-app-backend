@@ -41,15 +41,13 @@
                             <x-input-error :messages="$errors->get('short_description')" class="mt-2" />
                         </div>
                         <div class="md:col-span-12">
-                            <div class="">
-                                <x-input-label for="description" :value="__('Description')" />
-                                <div class="bg-white dark:bg-gray-700 text-white richBoxHeight rounded shadow-sm border editor" data-target="description"></div>
-                                <!-- Hidden input to store HTML content -->
-                                <input type="hidden" required name="description" id="description"
-                                    value="{{ old('description', '') }}">
-
-                                <x-input-error :messages="$errors->get('description')" class="mt-2" />
+                            <x-input-label for="description" :value="__('Description')" />
+                            <div class="ql-wrapper mt-1">
+                                <div class="richBoxHeight editor" data-target="description"></div>
                             </div>
+                            <input type="hidden" required name="description" id="description"
+                                value="{{ old('description', '') }}">
+                            <x-input-error :messages="$errors->get('description')" class="mt-2" />
                         </div>
                         <div class="md:col-span-12">
                             <x-input-label for="meta_title" :value="__('Meta Title')" />
@@ -73,7 +71,7 @@
                         </div>
                         <div class="md:col-span-6">
                             <x-input-label for="is_active" :value="__('Status')" />
-                            <x-select name="is_active" :options="['true' => 'Active', 'false' => 'Inactive']" :value="old('is_active', 'true')" />
+                            <x-select name="is_active" :options="['1' => 'Active', '0' => 'Inactive']" :value="old('is_active', '1')" />
                             <x-input-error :messages="$errors->get('is_active')" class="mt-2" />
                         </div>
                         <div class="md:col-span-6">

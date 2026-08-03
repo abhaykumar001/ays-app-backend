@@ -34,6 +34,9 @@ class OffersController extends Controller
         $data = $this->validatedData($request);
 
         $data['created_by'] = Auth::id();
+        $data['is_featured'] = $request->boolean('is_featured');
+        $data['is_active'] = $request->boolean('is_active', true);
+        $data['sort_order'] = (int) ($request->sort_order ?? 0);
 
         // Conditions → JSON
         $data['conditions'] = $request->conditions
@@ -77,6 +80,10 @@ class OffersController extends Controller
     {
         $data = $this->validatedData($request);
 
+        $data['is_featured'] = $request->boolean('is_featured');
+        $data['is_active'] = $request->boolean('is_active', true);
+        $data['sort_order'] = (int) ($request->sort_order ?? 0);
+
         $data['conditions'] = $request->conditions
             ? array_values(array_filter(explode("\n", $request->conditions)))
             : null;
@@ -114,9 +121,9 @@ class OffersController extends Controller
             'unit'         => ['nullable','string','max:50'],
             'start_date'   => ['nullable','date'],
             'end_date'     => ['nullable','date','after_or_equal:start_date'],
-            'is_featured'  => ['required','boolean'],
-            'is_active'    => ['required','boolean'],
-            'sort_order'   => ['required','integer'],
+            'is_featured'  => ['nullable','boolean'],
+            'is_active'    => ['nullable','boolean'],
+            'sort_order'   => ['nullable','integer'],
         ]);
     }
 }

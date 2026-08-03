@@ -55,7 +55,7 @@ class MarketInsightsController extends Controller
 
         // Handle image upload if needed
         if ($request->hasFile('image')) {
-            $marketInsight->addMediaFromRequest('image')->toMediaCollection('images', 'marketInsightFiles');
+            $marketInsight->addMediaFromRequest('image')->toMediaCollection('images');
         }
 
         return redirect()->route('marketInsights.index')
@@ -68,8 +68,7 @@ class MarketInsightsController extends Controller
      */
     public function show(string $id)
     {
-        $marketInsight = MarketInsight::findorfail($id);
-        return redirect()->route('singleMarketInsight', $marketInsight->slug);
+        return redirect()->route('marketInsights.index');
     }
 
     /**
@@ -102,7 +101,7 @@ class MarketInsightsController extends Controller
         // Handle image upload if needed
         if ($request->hasFile('image')) {
             $marketInsight->clearMediaCollection('images');
-            $marketInsight->addMediaFromRequest('image')->toMediaCollection('images', 'marketInsightFiles');
+            $marketInsight->addMediaFromRequest('image')->toMediaCollection('images');
         }
        
         return redirect()->back()

@@ -14,7 +14,10 @@ use Spatie\Sluggable\SlugOptions;
 class Maintanance extends Model
 {
     use HasFactory, InteractsWithMedia, SoftDeletes, HasSlug;
-    protected $fillable = ['first_name', 'last_name', 'email', 'phone', 'designation', 'whatsapp', 'nationality','license_number','license_expiry','notes','is_active', 'user_id'];
+    protected $fillable = [
+        'name', 'slug', 'description', 'default_cost', 'estimated_duration',
+        'required_materials', 'special_instructions', 'is_active', 'sort_order',
+    ];
     /**
      * The dates attributes
      *
@@ -38,7 +41,7 @@ class Maintanance extends Model
      public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('title')
+            ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
     }
     // image accessor

@@ -16,8 +16,8 @@
                     </div>
                 </div>
 
-                <form method="POST" action="{{ route('projects.store') }}" class="mt-6 space-y-8"
-                    enctype="multipart/form-data">
+                <form method="POST" action="{{ route('projects.units.store', $project) }}" class="mt-6 space-y-8"
+                    enctype="multipart/form-data" x-data="unitPaymentPlans()">
                     @csrf
 
                     <div class="grid md:grid-cols-12 gap-5">
@@ -29,12 +29,20 @@
                             <x-input-error :messages="$errors->get('title')" class="mt-2" />
                         </div>
 
-                        {{-- Project Code --}}
+                        {{-- Unit Number --}}
                         <div class="md:col-span-6">
-                            <x-input-label for="unit_code" :value="__('Unit Code')" />
-                            <x-text-input id="unit_code" name="unit_code" type="text" class="mt-1 block w-full"
-                                :value="old('unit_code')" />
-                            <x-input-error :messages="$errors->get('unit_code')" class="mt-2" />
+                            <x-input-label for="unit_number" :value="__('Unit Number')" />
+                            <x-text-input id="unit_number" name="unit_number" type="text" class="mt-1 block w-full"
+                                :value="old('unit_number')" />
+                            <x-input-error :messages="$errors->get('unit_number')" class="mt-2" />
+                        </div>
+
+                        {{-- Unit Type --}}
+                        <div class="md:col-span-6">
+                            <x-input-label for="unit_type" :value="__('Unit Type')" />
+                            <x-text-input id="unit_type" name="unit_type" type="text" class="mt-1 block w-full"
+                                :value="old('unit_type')" placeholder="e.g. 1BR-A, Corner Unit" />
+                            <x-input-error :messages="$errors->get('unit_type')" class="mt-2" />
                         </div>
 
                         {{-- Project Phase --}}
@@ -88,9 +96,20 @@
 
                         {{-- Starting Price --}}
                         <div class="md:col-span-4">
-                            <x-input-label for="price" :value="__('Unit Price')" />
+                            <div class="flex items-center justify-between mb-1">
+                                <x-input-label for="price" :value="__('Unit Price')" class="mb-0" />
+                                <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none">
+                                    <input type="checkbox" id="price_on_request_toggle" class="rounded"
+                                        onchange="
+                                            const inp = document.getElementById('price');
+                                            if (this.checked) { inp.value = ''; inp.disabled = true; }
+                                            else { inp.disabled = false; inp.focus(); }
+                                        ">
+                                    Price on Request
+                                </label>
+                            </div>
                             <x-text-input id="price" name="price" type="text"
-                                class="mt-1 block w-full" :value="old('price')" />
+                                class="mt-1 block w-full" :value="old('price')" placeholder="e.g. AED 1,500,000" />
                             <x-input-error :messages="$errors->get('price')" class="mt-2" />
                         </div>
 
@@ -105,15 +124,15 @@
                         {{-- Bedrooms --}}
                         <div class="md:col-span-4">
                             <x-input-label for="bedrooms" :value="__('Bedrooms')" />
-                            <x-text-input id="bedrooms" name="bedrooms" type="number" min="0" class="mt-1 block w-full"
-                                :value="old('bedrooms')" />
+                            <x-text-input id="bedrooms" name="bedrooms" type="text" class="mt-1 block w-full"
+                                :value="old('bedrooms')" placeholder="e.g. Studio, 1, 2, Duplex 1-3" />
                             <x-input-error :messages="$errors->get('bedrooms')" class="mt-2" />
                         </div>
                         {{-- Bathrooms --}}
                         <div class="md:col-span-4">
                             <x-input-label for="bathrooms" :value="__('Bathrooms')" />
-                            <x-text-input id="bathrooms" name="bathrooms" type="number" min="0"
-                                class="mt-1 block w-full" :value="old('bathrooms')" />
+                            <x-text-input id="bathrooms" name="bathrooms" type="text"
+                                class="mt-1 block w-full" :value="old('bathrooms')" placeholder="e.g. 2, 1-2, 2-3" />
                             <x-input-error :messages="$errors->get('bathrooms')" class="mt-2" />
                         </div>
 
@@ -128,23 +147,16 @@
                         {{-- Plot Size --}}
                         <div class="md:col-span-4">
                             <x-input-label for="size_sqft" :value="__('Unit Size (SqFt)')" />
-                            <x-text-input id="size_sqft" name="size_sqft" type="number"
-                                class="mt-1 block w-full" :value="old('size_sqft')" />
+                            <x-text-input id="size_sqft" name="size_sqft" type="text"
+                                class="mt-1 block w-full" :value="old('size_sqft')" placeholder="e.g. 1,200, 901-1,867" />
                             <x-input-error :messages="$errors->get('size_sqft')" class="mt-2" />
-                        </div>
-                        {{-- Plot Size --}}
-                        <div class="md:col-span-4">
-                            <x-input-label for="plot_size_sqft" :value="__('Plot Size (SqFt)')" />
-                            <x-text-input id="plot_size_sqft" name="plot_size_sqft" type="number"
-                                class="mt-1 block w-full" :value="old('plot_size_sqft')" />
-                            <x-input-error :messages="$errors->get('plot_size_sqft')" class="mt-2" />
                         </div>
 
                         {{-- Floor --}}
                         <div class="md:col-span-4">
                             <x-input-label for="floor" :value="__('Floor')" />
-                            <x-text-input id="floor" name="floor" type="number" class="mt-1 block w-full"
-                                :value="old('floor')" />
+                            <x-text-input id="floor" name="floor" type="text" class="mt-1 block w-full"
+                                :value="old('floor')" placeholder="e.g. 5, 2-4-6-8, G-10" />
                             <x-input-error :messages="$errors->get('floor')" class="mt-2" />
                         </div>
 
@@ -216,6 +228,99 @@
                                 accept="application/pdf,image/*" class="mt-1 block w-full" />
                             <x-input-error :messages="$errors->get('payment_plan')" class="mt-2" />
                         </div>
+
+                        {{-- Structured Payment Plans --}}
+                        <div class="md:col-span-12 border-t dark:border-gray-700 pt-6 mt-2">
+                            <div class="flex items-center justify-between mb-3">
+                                <x-input-label :value="__('Payment Plans')" class="mb-0" />
+                                <button type="button" class="text-sm text-primary font-medium" @click="addPlan()">+ Add Payment Plan</button>
+                            </div>
+
+                            <template x-for="(plan, pIndex) in plans" :key="pIndex">
+                                <div class="border rounded-lg p-4 mb-4 dark:border-gray-700">
+                                    <div class="flex flex-wrap gap-3 items-end mb-3">
+                                        <div class="flex-1 min-w-[200px]">
+                                            <x-input-label :value="__('Plan Name')" />
+                                            <input type="text" :name="`payment_plans[${pIndex}][name]`" x-model="plan.name"
+                                                placeholder="e.g. Plan A"
+                                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary dark:focus:border-primary focus:ring-primary-light dark:focus:ring-primary-light px-4 py-2 rounded-md shadow-sm" required>
+                                        </div>
+                                        <div class="flex-1 min-w-[200px]">
+                                            <x-input-label :value="__('Tentative Sale/Purchase Date')" />
+                                            <input type="date" :name="`payment_plans[${pIndex}][tentative_sale_date]`"
+                                                x-model="plan.tentative_sale_date"
+                                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary dark:focus:border-primary focus:ring-primary-light dark:focus:ring-primary-light px-4 py-2 rounded-md shadow-sm">
+                                        </div>
+                                        <button type="button" class="text-red-500 text-sm mb-2" @click="plans.splice(pIndex, 1)">Remove Plan</button>
+                                    </div>
+
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-sm mb-2">
+                                            <thead>
+                                                <tr class="text-left text-gray-500 dark:text-gray-400">
+                                                    <th class="pr-2 pb-1">Within (months of sale date)</th>
+                                                    <th class="pr-2 pb-1">Percent (%)</th>
+                                                    <th class="pr-2 pb-1">Auto-Calc</th>
+                                                    <th class="pr-2 pb-1">Amount (AED)</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <template x-for="(m, mIndex) in plan.milestones" :key="mIndex">
+                                                    <tr>
+                                                        <td class="pr-2 py-1">
+                                                            <input type="number" min="0"
+                                                                :name="`payment_plans[${pIndex}][milestones][${mIndex}][month_offset]`"
+                                                                x-model.number="m.month_offset"
+                                                                class="w-24 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 px-2 py-1 rounded-md shadow-sm" required>
+                                                        </td>
+                                                        <td class="pr-2 py-1">
+                                                            <input type="number" step="0.01" min="0" max="100"
+                                                                :name="`payment_plans[${pIndex}][milestones][${mIndex}][percent]`"
+                                                                x-model.number="m.percent"
+                                                                @input="if (!m.is_amount_manual) m.amount = computeAmount(m.percent)"
+                                                                class="w-24 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 px-2 py-1 rounded-md shadow-sm" required>
+                                                        </td>
+                                                        <td class="pr-2 py-1 text-center">
+                                                            <input type="hidden"
+                                                                :name="`payment_plans[${pIndex}][milestones][${mIndex}][is_amount_manual]`"
+                                                                :value="m.is_amount_manual ? 1 : 0">
+                                                            <input type="checkbox" :checked="!m.is_amount_manual"
+                                                                @change="m.is_amount_manual = !$event.target.checked; if (!m.is_amount_manual) m.amount = computeAmount(m.percent)">
+                                                        </td>
+                                                        <td class="pr-2 py-1">
+                                                            <input type="number" step="0.01" min="0"
+                                                                :name="`payment_plans[${pIndex}][milestones][${mIndex}][amount]`"
+                                                                x-model.number="m.amount" :disabled="!m.is_amount_manual"
+                                                                class="w-32 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 px-2 py-1 rounded-md shadow-sm disabled:opacity-60">
+                                                        </td>
+                                                        <td class="py-1">
+                                                            <button type="button" class="text-red-500"
+                                                                @click="plan.milestones.splice(mIndex, 1)">×</button>
+                                                        </td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                        <button type="button" class="text-blue-500 text-sm"
+                                            @click="plan.milestones.push({ month_offset: 0, percent: '', is_amount_manual: false, amount: null })">
+                                            + Add Milestone
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                            <p class="text-sm text-gray-400" x-show="plans.length === 0">No payment plans added yet.</p>
+                        </div>
+
+                        {{-- Video --}}
+                        <div class="md:col-span-12">
+                            <x-input-label for="video" :value="__('Unit Video (MP4, MOV, AVI, WebM – max 256 MB)')" />
+                            <x-text-input id="video" name="video" type="file"
+                                accept="video/mp4,video/quicktime,video/avi,video/webm,video/*"
+                                class="mt-1 block w-full" />
+                            <x-input-error :messages="$errors->get('video')" class="mt-2" />
+                        </div>
+
                         {{-- Availability Status --}}
                         <div class="md:col-span-4">
                             <x-input-label for="availability_status" :value="__('Availability Status')" />
@@ -230,7 +335,7 @@
                         {{-- Is Active --}}
                         <div class="md:col-span-4">
                             <x-input-label for="is_active" :value="__('Is Active')" />
-                            <x-select name="is_active" :options="['true' => 'Active', 'false' => 'Inactive']" :value="old('is_active', 'true')" />
+                            <x-select name="is_active" :options="['1' => 'Active', '0' => 'Inactive']" :value="old('is_active', '1')" />
                             <x-input-error :messages="$errors->get('is_active')" class="mt-2" />
                         </div>
                         {{-- Is Featured --}}
@@ -256,6 +361,24 @@
             </div>
         </div>
     </div>
+
+    {{-- Structured Payment Plans --}}
+    <script>
+        function unitPaymentPlans() {
+            return {
+                plans: [],
+                addPlan() {
+                    this.plans.push({ name: '', tentative_sale_date: '', milestones: [] });
+                },
+                computeAmount(percent) {
+                    const priceInput = document.getElementById('price');
+                    const price = priceInput ? parseFloat(priceInput.value) : NaN;
+                    if (!price || !percent) return null;
+                    return Math.round((percent / 100) * price * 100) / 100;
+                },
+            };
+        }
+    </script>
 
     {{-- TomSelect for Accommodations --}}
     <script>

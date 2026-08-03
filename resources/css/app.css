@@ -34,9 +34,79 @@ h6 {
   border: 0px !important;
 }
 .richBoxHeight {
-     min-height:300px !important;
+    min-height: 300px !important;
     resize: vertical;
     overflow: auto;
+}
+
+/* ── Quill rich text editor ───────────────────────────────────────────────── */
+.ql-editor {
+    min-height: 280px;
+    font-size: 14px;
+    line-height: 1.75;
+    color: #111827 !important;
+    background-color: #ffffff !important;
+}
+.ql-editor.ql-blank::before {
+    color: #9ca3af;
+    font-style: italic;
+}
+.ql-container.ql-snow {
+    border: 0 !important;
+    background-color: #ffffff;
+    border-radius: 0 0 6px 6px;
+}
+.ql-toolbar.ql-snow {
+    border: 0 !important;
+    border-bottom: 1px solid #d1d5db !important;
+    background-color: #f9fafb;
+    border-radius: 6px 6px 0 0;
+    padding: 8px 10px;
+    flex-wrap: wrap;
+    gap: 2px;
+}
+/* Keep the Quill editor light even in dark-mode dashboard */
+.dark .ql-editor {
+    color: #111827 !important;
+    background-color: #ffffff !important;
+}
+.dark .ql-container.ql-snow {
+    background-color: #ffffff;
+}
+.dark .ql-toolbar.ql-snow {
+    background-color: #f3f4f6;
+    border-bottom-color: #6b7280 !important;
+}
+.dark .ql-toolbar .ql-stroke {
+    stroke: #374151 !important;
+}
+.dark .ql-toolbar .ql-fill {
+    fill: #374151 !important;
+}
+.dark .ql-toolbar .ql-picker,
+.dark .ql-toolbar .ql-picker-label {
+    color: #374151 !important;
+}
+.dark .ql-toolbar .ql-picker-options {
+    background-color: #ffffff;
+    color: #111827;
+}
+.dark .ql-toolbar button:hover .ql-stroke,
+.dark .ql-toolbar button.ql-active .ql-stroke {
+    stroke: #B4936E !important;
+}
+.dark .ql-toolbar button:hover .ql-fill,
+.dark .ql-toolbar button.ql-active .ql-fill {
+    fill: #B4936E !important;
+}
+/* Rich editor wrapper – gives it a card border */
+.ql-wrapper {
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    overflow: hidden;
+}
+.dark .ql-wrapper {
+    border-color: #4b5563;
 }
 .datatable-container img {
   height: auto;

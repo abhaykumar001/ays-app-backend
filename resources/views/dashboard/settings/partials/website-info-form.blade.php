@@ -77,6 +77,48 @@
                     </div>
                 @endif
             </div>
+            <div class="md:col-span-12">
+                <x-input-label for="login_banner" :value="__('App Login Screen Banner')" />
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('This image appears at the top of the mobile app login screen. Recommended size: 1080×1200px.') }}</p>
+                <x-text-input id="login_banner" name="login_banner" type="file" allowed="image/*"
+                    class="mt-1 block w-full" :disabled="!$canEdit2" />
+                <x-input-error :messages="$errors->get('login_banner')" class="mt-2" />
+                @if (isset($settingsArr['login_banner']) && $settingsArr['login_banner'] != '')
+                    <div class="mt-2">
+                        <img src="{{ $settingsArr['login_banner'] }}" alt="Current Login Banner" class="h-48 w-auto rounded-lg object-cover">
+                    </div>
+                @endif
+            </div>
+
+            <div class="md:col-span-12 border-t pt-6 mt-2 dark:border-gray-700">
+                <h3 class="text-md font-medium text-gray-900 dark:text-gray-100">{{ __('AYS Screen — Partnership Hero') }}</h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('Video, title and subtitle shown in the full-bleed hero at the top of the AYS screen in the mobile app.') }}</p>
+            </div>
+
+            <div class="md:col-span-6">
+                <x-input-label for="partnership_hero_title" :value="__('Hero Title (gold text)')" />
+                <x-text-input id="partnership_hero_title" name="partnership_hero_title" type="text" class="mt-1 block w-full"
+                    :value="old('partnership_hero_title', $settingsArr['partnership_hero_title'] ?? '')" :disabled="!$canEdit2" />
+                <x-input-error :messages="$errors->get('partnership_hero_title')" class="mt-2" />
+            </div>
+            <div class="md:col-span-6">
+                <x-input-label for="partnership_hero_subtitle" :value="__('Hero Subtitle (white text)')" />
+                <x-text-input id="partnership_hero_subtitle" name="partnership_hero_subtitle" type="text" class="mt-1 block w-full"
+                    :value="old('partnership_hero_subtitle', $settingsArr['partnership_hero_subtitle'] ?? '')" :disabled="!$canEdit2" />
+                <x-input-error :messages="$errors->get('partnership_hero_subtitle')" class="mt-2" />
+            </div>
+            <div class="md:col-span-12">
+                <x-input-label for="partnership_hero_video" :value="__('Hero Video')" />
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('MP4/MOV, up to 50MB. Plays muted and looped behind the hero content in the app.') }}</p>
+                <x-text-input id="partnership_hero_video" name="partnership_hero_video" type="file" allowed="video/*"
+                    class="mt-1 block w-full" :disabled="!$canEdit2" />
+                <x-input-error :messages="$errors->get('partnership_hero_video')" class="mt-2" />
+                @if (isset($settingsArr['partnership_hero_video']) && $settingsArr['partnership_hero_video'] != '')
+                    <div class="mt-2">
+                        <video src="{{ $settingsArr['partnership_hero_video'] }}" controls muted class="h-48 w-auto rounded-lg bg-black"></video>
+                    </div>
+                @endif
+            </div>
         </div>
         @if($canEdit2)
         <div class="flex flex-col items-center justify-center gap-4">

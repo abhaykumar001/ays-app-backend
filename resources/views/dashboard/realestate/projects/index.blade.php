@@ -26,7 +26,7 @@
                         // Build allowed actions based on permissions
                         $actions = [];
 
-                        if (auth()->user()->can('edit_projects')) {
+                        if (auth()->user()->can('edit_projects') || auth()->user()->can('edit_project_pricing')) {
                             $actions[] = ['type' => 'edit', 'url' => 'projects.edit', 'label' => 'Edit'];
                         }
 
@@ -50,6 +50,9 @@
                         }
                         if(auth()->user()->can('view_construction_updates')) {
                             $actions[] = [ 'type' => 'constructionUpdate', 'url'  => 'projects.constructionUpdates.index', 'label'=> 'Construction Updates'];
+                        }
+                        if(auth()->user()->can('view_project_offers')) {
+                            $actions[] = [ 'type' => 'offer', 'url'  => 'projects.projectOffers.index', 'label'=> 'Offers'];
                         }
                         // Define table columns
                         $columns = collect([

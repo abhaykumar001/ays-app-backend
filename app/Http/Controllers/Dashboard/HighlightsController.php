@@ -37,11 +37,26 @@ class HighlightsController extends Controller
      */
     public function store(Request $request, Project $project)
     {
-        $data = $request->validate([
-            
+        $request->validate([
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'is_featured' => 'nullable|boolean',
+            'sort_order'  => 'nullable|integer',
+            'is_active'   => 'nullable|boolean',
+            'image'       => 'nullable|image|max:5120',
         ]);
 
-        $project->highlights()->create($data);
+        $highlight = $project->highlights()->create([
+            'title'       => $request->title,
+            'description' => $request->description,
+            'is_featured' => $request->boolean('is_featured'),
+            'sort_order'  => (int) ($request->sort_order ?? 0),
+            'is_active'   => $request->boolean('is_active', true),
+        ]);
+
+        if ($request->hasFile('image')) {
+            $highlight->addMediaFromRequest('image')->toMediaCollection('images');
+        }
 
         return redirect()->back()->with('success', 'Project Highlight added successfully');
     }
@@ -79,11 +94,27 @@ class HighlightsController extends Controller
         Project $project,
         Highlight $highlight
     ) {
-        $data = $request->validate([
-            
+        $request->validate([
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'is_featured' => 'nullable|boolean',
+            'sort_order'  => 'nullable|integer',
+            'is_active'   => 'nullable|boolean',
+            'image'       => 'nullable|image|max:5120',
         ]);
 
-        $highlight->update($data);
+        $highlight->update([
+            'title'       => $request->title,
+            'description' => $request->description,
+            'is_featured' => $request->boolean('is_featured'),
+            'sort_order'  => (int) ($request->sort_order ?? 0),
+            'is_active'   => $request->boolean('is_active', true),
+        ]);
+
+        if ($request->hasFile('image')) {
+            $highlight->clearMediaCollection('images');
+            $highlight->addMediaFromRequest('image')->toMediaCollection('images');
+        }
 
         return redirect()->back()->with('success', 'Project Highlight updated successfully');
     }

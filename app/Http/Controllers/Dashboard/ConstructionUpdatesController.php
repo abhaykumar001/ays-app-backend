@@ -13,7 +13,7 @@ class ConstructionUpdatesController extends Controller
     {
         $this->middleware('permission:view_construction_updates')->only(['index', 'show']);
         $this->middleware('permission:create_construction_updates')->only(['create', 'store']);
-        $this->middleware('permission:edit_construction_updates')->only(['edit', 'update']);
+        $this->middleware('permission:edit_construction_updates')->only(['edit', 'update', 'destroyMedia']);
         $this->middleware('permission:delete_construction_updates')->only(['destroy']);
     }
     public function index(Project $project)
@@ -30,16 +30,20 @@ class ConstructionUpdatesController extends Controller
             'progress_percentage' => 'nullable|integer|min:0|max:100',
             'update_date' => 'nullable|date',
             'stage' => 'nullable|in:foundation,structure,facade,interior,finishing',
-            'is_public' => 'required|boolean',
-            'is_active' => 'required|boolean',
-            'file' => 'nullable|file|mimes:jpg,png,jpeg,mp4,zip',
+            'is_public' => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
+            'files' => 'nullable|array',
+            'files.*' => 'file|mimes:jpg,png,jpeg,webp,mp4,zip',
             'link' => 'nullable|url',
         ]);
 
+        $data['is_public'] = $request->boolean('is_public');
+        $data['is_active'] = $request->boolean('is_active', true);
+
         $update = $project->constructionUpdates()->create($data);
 
-        if ($request->hasFile('file')) {
-            $update->addMedia($request->file('file'))->toMediaCollection('updates');
+        foreach ($request->file('files', []) as $file) {
+            $update->addMedia($file)->toMediaCollection('updates');
         }
 
         return back()->with('success', 'Construction Update saved.');
@@ -47,7 +51,9 @@ class ConstructionUpdatesController extends Controller
 
     public function edit(Project $project, ConstructionUpdate $constructionUpdate)
     {
-        $constructionUpdate->file_url = $constructionUpdate->getFirstMediaUrl('updates');
+        $constructionUpdate->media_items = $constructionUpdate->getMedia('updates')
+            ->map(fn ($m) => ['id' => $m->id, 'url' => $m->getUrl()])
+            ->values();
         return response()->json($constructionUpdate);
     }
 
@@ -59,17 +65,20 @@ class ConstructionUpdatesController extends Controller
             'progress_percentage' => 'nullable|integer|min:0|max:100',
             'update_date' => 'nullable|date',
             'stage' => 'nullable|in:foundation,structure,facade,interior,finishing',
-            'is_public' => 'required|boolean',
-            'is_active' => 'required|boolean',
-            'file' => 'nullable|file|mimes:jpg,png,jpeg,mp4,zip',
+            'is_public' => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
+            'files' => 'nullable|array',
+            'files.*' => 'file|mimes:jpg,png,jpeg,webp,mp4,zip',
             'link' => 'nullable|url',
         ]);
 
+        $data['is_public'] = $request->boolean('is_public');
+        $data['is_active'] = $request->boolean('is_active', true);
+
         $constructionUpdate->update($data);
 
-        if ($request->hasFile('file')) {
-            $constructionUpdate->clearMediaCollection('updates');
-            $constructionUpdate->addMedia($request->file('file'))->toMediaCollection('updates');
+        foreach ($request->file('files', []) as $file) {
+            $constructionUpdate->addMedia($file)->toMediaCollection('updates');
         }
 
         return back()->with('success', 'Construction Update updated.');
@@ -81,5 +90,16 @@ class ConstructionUpdatesController extends Controller
         $constructionUpdate->delete();
 
         return back()->with('success', 'Construction Update deleted.');
+    }
+
+    public function destroyMedia(Project $project, ConstructionUpdate $constructionUpdate, int $media)
+    {
+        $constructionUpdate->media()->where('id', $media)->firstOrFail()->delete();
+
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'Image removed.');
     }
 }

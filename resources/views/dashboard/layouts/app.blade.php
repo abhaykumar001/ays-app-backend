@@ -11,8 +11,8 @@
     <link rel="icon" href="{{ asset('assets/dashboard/images/favicon.png') }}" type="image/x-icon">
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.7/quill.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 
@@ -84,42 +84,45 @@
     @stack('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Select all editors
-            const editors = document.querySelectorAll('.editor');
-
-            editors.forEach(editorContainer => {
-                // Each editor should have a data-target pointing to its hidden input
+            document.querySelectorAll('.editor').forEach(editorContainer => {
                 const inputId = editorContainer.dataset.target;
                 const hiddenInput = document.getElementById(inputId);
+                if (!hiddenInput) return;
 
-                if (!hiddenInput) return; // skip if input not found
+                // Capture any pre-rendered HTML placed inside the div (edit forms)
+                const preloaded = editorContainer.innerHTML.trim();
 
-                const editor = new Quill(editorContainer, {
+                const quill = new Quill(editorContainer, {
                     theme: 'snow',
-                    placeholder: 'Enter description...',
+                    placeholder: 'Write your content here…',
                     modules: {
                         toolbar: [
-                            [{
-                                header: [false, 1, 2, 3, 4, 5, 6]
-                            }],
+                            [{ header: [1, 2, 3, 4, 5, 6, false] }],
+                            [{ size: ['small', false, 'large', 'huge'] }],
                             ['bold', 'italic', 'underline', 'strike'],
+                            [{ color: [] }, { background: [] }],
+                            [{ align: [] }],
+                            [{ list: 'ordered' }, { list: 'bullet' }],
+                            [{ indent: '-1' }, { indent: '+1' }],
+                            ['blockquote', 'code-block'],
                             ['link', 'image'],
-                            [{
-                                list: 'ordered'
-                            }, {
-                                list: 'bullet'
-                            }],
                             ['clean']
                         ]
                     }
                 });
 
-                // Initialize hidden input with editor content
-                hiddenInput.value = editor.root.innerHTML;
+                // Load existing content: prefer pre-rendered HTML in the div,
+                // fall back to the hidden input value (e.g. news edit form).
+                if (preloaded && preloaded !== '<p><br></p>') {
+                    quill.clipboard.dangerouslyPasteHTML(preloaded);
+                } else if (hiddenInput.value) {
+                    quill.clipboard.dangerouslyPasteHTML(hiddenInput.value);
+                }
 
-                // Update hidden input whenever editor changes
-                editor.on('text-change', () => {
-                    hiddenInput.value = editor.root.innerHTML;
+                hiddenInput.value = quill.root.innerHTML;
+
+                quill.on('text-change', () => {
+                    hiddenInput.value = quill.root.innerHTML;
                 });
             });
         });

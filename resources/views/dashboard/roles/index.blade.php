@@ -30,16 +30,16 @@
                         </div>
 
                         <!-- PERMISSIONS -->
-                        <div class="mt-4 bg-gray-200 dark:bg-gray-700 p-2">
-                            <div class="flex items-center gap-2 mb-2 text-xs text-white">
-                                <button type="button" onclick="selectAll('createRoleForm')">Select All</button> /
-                                <button type="button" onclick="clearAll('createRoleForm')">Clear All</button>
+                        <div class="mt-4 bg-gray-100 dark:bg-gray-700 p-2 rounded">
+                            <div class="flex items-center gap-2 mb-2 text-xs text-gray-700 dark:text-white">
+                                <button type="button" onclick="selectAll('createRoleForm')" class="hover:underline">Select All</button> /
+                                <button type="button" onclick="clearAll('createRoleForm')" class="hover:underline">Clear All</button>
                             </div>
                              <x-input-error class="mt-2" :messages="$errors->get('permissions')" />
                             <div class="h-96 overflow-y-auto">
                                 @foreach ($permissionsByModule as $module => $modulePermissions)
-                                    <div class="border-b border-white/30 p-2 text-white">
-                                        <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded cursor-pointer"
+                                    <div class="border-b border-gray-300 dark:border-white/30 p-2">
+                                        <div class="flex items-center justify-between bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded cursor-pointer text-gray-900 dark:text-white"
                                             onclick="toggleModule('{{ $module }}', 'createRoleForm')">
                                             <strong>{{ ucfirst($module) }}</strong>
                                             <input type="checkbox"
@@ -49,7 +49,7 @@
                                             id="module-{{ $module }}-createRoleForm">
                                             @foreach ($modulePermissions as $permission)
                                                 <label
-                                                    class="flex items-center gap-1 bg-gray-200 dark:bg-gray-600 text-xs px-2 py-1 rounded">
+                                                    class="flex items-center gap-1 bg-white dark:bg-gray-600 text-gray-800 dark:text-white text-xs px-2 py-1 rounded cursor-pointer">
                                                     <input type="checkbox" name="permissions[]"
                                                         value="{{ $permission->name }}">
                                                     {{ $permission->description }}
@@ -81,7 +81,7 @@
                 <div class=" p-3 space-y-4">
                     @foreach ($roles as $role)
                         <div id="roleCard-{{ $role->id }}"
-                            class="border-b bg-gray-100 dark:bg-gray-700 p-3 text-white rounded-lg">
+                            class="border-b bg-gray-100 dark:bg-gray-700 p-3 text-gray-900 dark:text-white rounded-lg">
 
                             <!-- VIEW MODE -->
                             <div id="viewMode-{{ $role->id }}">
@@ -141,11 +141,11 @@
                                 <x-text-input name="name" value="{{ $role->name }}"
                                     class="border p-2 rounded w-full  mb-2 md:mb-0" required />
                                 <x-input-error class="mt-2" :messages="$errors->get('name')" />
-                                <div class="flex justify-between items-center text-xs">
+                                <div class="flex justify-between items-center text-xs text-gray-700 dark:text-gray-300">
                                     <div class="flex gap-2">
                                         <button type="button"
-                                            onclick="selectAll('roleForm-{{ $role->id }}')">Select All</button> /
-                                        <button type="button" onclick="clearAll('roleForm-{{ $role->id }}')">Clear
+                                            onclick="selectAll('roleForm-{{ $role->id }}')" class="hover:underline">Select All</button> /
+                                        <button type="button" onclick="clearAll('roleForm-{{ $role->id }}')" class="hover:underline">Clear
                                             All</button>
                                     </div>
                                     <button type="button" onclick="toggleEdit({{ $role->id }})"
@@ -155,8 +155,8 @@
                                 <div id="roleForm-{{ $role->id }}"
                                     class="flex flex-col gap-2 h-80 overflow-y-auto mb-3">
                                     @foreach ($permissionsByModule as $module => $modulePermissions)
-                                        <div class="border-b border-white/30 p-2">
-                                            <div class="flex items-center justify-between bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded cursor-pointer"
+                                        <div class="border-b border-gray-300 dark:border-white/30 p-2">
+                                            <div class="flex items-center justify-between bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded cursor-pointer text-gray-900 dark:text-white"
                                                 onclick="toggleModule('{{ $module }}', 'roleForm-{{ $role->id }}')">
                                                 <strong>{{ ucfirst($module) }}</strong>
                                                 <input type="checkbox"
@@ -166,7 +166,7 @@
                                                 id="module-{{ $module }}-roleForm-{{ $role->id }}">
                                                 @foreach ($modulePermissions as $permission)
                                                     <label
-                                                        class="flex items-center gap-1 bg-gray-100 dark:bg-gray-700 px-2 py-1 text-xs rounded">
+                                                        class="flex items-center gap-1 bg-white dark:bg-gray-700 text-gray-800 dark:text-white px-2 py-1 text-xs rounded cursor-pointer">
                                                         <input type="checkbox" name="permissions[]"
                                                             value="{{ $permission->name }}"
                                                             {{ $role->permissions->contains('name', $permission->name) ? 'checked' : '' }}>

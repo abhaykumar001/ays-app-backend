@@ -38,6 +38,10 @@ class WebsiteSettingController extends Controller
             'website_keywords' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'favicon' => 'nullable|image|mimes:ico,png,webp|max:1024',
+            'login_banner' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'partnership_hero_title' => 'nullable|string|max:255',
+            'partnership_hero_subtitle' => 'nullable|string|max:255',
+            'partnership_hero_video' => 'nullable|mimes:mp4,mov,avi,mkv|max:51200',
         ]);
 
         $fields = [
@@ -46,7 +50,9 @@ class WebsiteSettingController extends Controller
             'website_url',
             'footer_text',
             'website_description',
-            'website_keywords'
+            'website_keywords',
+            'partnership_hero_title',
+            'partnership_hero_subtitle',
         ];
 
         foreach ($fields as $field) {
@@ -62,14 +68,28 @@ class WebsiteSettingController extends Controller
         if ($request->hasFile('logo')) {
             $settings->clearMediaCollection('logo');
             $settings->addMedia($request->file('logo'))
-                ->toMediaCollection('logos', 'settingFiles');
+                ->toMediaCollection('logos');
         }
 
         // Handle favicon upload
         if ($request->hasFile('favicon')) {
             $settings->clearMediaCollection('favicon');
             $settings->addMedia($request->file('favicon'))
-                ->toMediaCollection('favicons', 'settingFiles');
+                ->toMediaCollection('favicons');
+        }
+
+        // Handle login banner upload
+        if ($request->hasFile('login_banner')) {
+            $settings->clearMediaCollection('login_banners');
+            $settings->addMedia($request->file('login_banner'))
+                ->toMediaCollection('login_banners');
+        }
+
+        // Handle partnership hero video upload (AYS screen)
+        if ($request->hasFile('partnership_hero_video')) {
+            $settings->clearMediaCollection('partnership_hero_videos');
+            $settings->addMedia($request->file('partnership_hero_video'))
+                ->toMediaCollection('partnership_hero_videos');
         }
 
         return redirect()->back()->with('status', 'success')->with('message', 'Updated Data Successfully.');;
@@ -86,11 +106,25 @@ class WebsiteSettingController extends Controller
             'facebook' => 'nullable|url',
             'instagram' => 'nullable|url',
             'linkedin' => 'nullable|url',
+            'youtube' => 'nullable|url',
+            'twitter' => 'nullable|url',
+            'pinterest' => 'nullable|url',
+            'tiktok' => 'nullable|url',
         ], [
             'phone_number.regex' => 'Phone number can only contain numbers, spaces, and + sign.',
         ]);
 
-        $fields = ['email', 'phone_number', 'facebook', 'instagram', 'linkedin'];
+        $fields = [
+            'email',
+            'phone_number',
+            'facebook',
+            'instagram',
+            'linkedin',
+            'youtube',
+            'twitter',
+            'pinterest',
+            'tiktok',
+        ];
 
         foreach ($fields as $field) {
             $value = $request->input($field);

@@ -3,40 +3,25 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Enquiry;
 use Illuminate\Http\Request;
 
 class EnquiriesController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:view_enquiries')->only(['index']);
+        $this->middleware('permission:edit_enquiries')->only(['edit', 'update']);
+        $this->middleware('permission:delete_enquiries')->only(['destroy']);
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        $enquiries = Enquiry::with(['user', 'project', 'unit'])->orderBy('id', 'desc')->get();
+        return view('dashboard.enquiries.index', compact('enquiries'));
     }
 
     /**
@@ -44,7 +29,8 @@ class EnquiriesController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $enquiry = Enquiry::with(['user', 'project', 'unit'])->findOrFail($id);
+        return view('dashboard.enquiries.edit', compact('enquiry'));
     }
 
     /**
@@ -52,7 +38,15 @@ class EnquiriesController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = $request->validate([
+            'status' => 'required|in:new,contacted,converted',
+        ]);
+
+        Enquiry::findOrFail($id)->update($validated);
+
+        return redirect()->route('enquiries.index')
+            ->with('status', 'success')
+            ->with('message', 'Enquiry updated successfully.');
     }
 
     /**
@@ -60,6 +54,10 @@ class EnquiriesController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        Enquiry::findOrFail($id)->delete();
+
+        return redirect()->back()
+            ->with('status', 'success')
+            ->with('message', 'Enquiry deleted successfully.');
     }
 }

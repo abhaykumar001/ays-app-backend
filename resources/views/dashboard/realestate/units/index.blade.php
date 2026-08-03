@@ -26,7 +26,7 @@
                         // Build allowed actions based on permissions
                         $actions = [];
 
-                        if (auth()->user()->can('edit_units')) {
+                        if (auth()->user()->can('edit_units') || auth()->user()->can('edit_unit_pricing')) {
                             $actions[] = ['type' => 'edit', 'url' => 'projects.units.edit', 'params' => [$project->id],  'label' => 'Edit'];
                         }
 
@@ -40,7 +40,7 @@
                         $columns = collect([
                             ['label' => '#'],
                             ['label' => 'Title', 'key' => 'title'],
-                            ['label' => 'Code', 'key' => 'unit_code'],
+                            ['label' => 'Unit Number', 'key' => 'unit_number'],
                             [
                                 'label' => 'Availablity',
                                 'key' => 'availability_status',

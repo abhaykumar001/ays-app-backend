@@ -57,7 +57,7 @@ class BlogsController extends Controller
 
         // Handle image upload if needed
         if ($request->hasFile('image')) {
-            $blog->addMediaFromRequest('image')->toMediaCollection('images', 'blogFiles');
+            $blog->addMediaFromRequest('image')->toMediaCollection('images');
         }
         // 🔹 Attach tags (existing or new)
         $tagIds = [];
@@ -114,7 +114,7 @@ class BlogsController extends Controller
         // Handle image upload if needed
         if ($request->hasFile('image')) {
             $blog->clearMediaCollection('images');
-            $blog->addMediaFromRequest('image')->toMediaCollection('images', 'blogFiles');
+            $blog->addMediaFromRequest('image')->toMediaCollection('images');
         }
         $tagIds = [];
         if ($request->tags) {

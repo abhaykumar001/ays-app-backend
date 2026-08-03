@@ -192,6 +192,13 @@
                                 class="mt-1 block w-full" :value="old('bedrooms')" />
                             <x-input-error :messages="$errors->get('bedrooms')" class="mt-2" />
                         </div>
+                        {{-- Bathrooms --}}
+                        <div class="md:col-span-4">
+                            <x-input-label for="bathrooms" :value="__('Bathrooms (1-4)')" />
+                            <x-text-input id="bathrooms" name="bathrooms" type="text"
+                                class="mt-1 block w-full" :value="old('bathrooms')" />
+                            <x-input-error :messages="$errors->get('bathrooms')" class="mt-2" />
+                        </div>
                         {{-- Minimum Size --}}
                         <div class="md:col-span-4">
                             <x-input-label for="min_size" :value="__('Minimum Size in Sqft')" />
@@ -265,6 +272,48 @@
                             </x-text-textarea>
                             <x-input-error :messages="$errors->get('description')" class="mt-2" />
                         </div>
+
+                        {{-- Title Description (project detail page tagline) --}}
+                        <div class="md:col-span-12">
+                            <x-input-label for="title_description" :value="__('Title Description (tagline shown under project name)')" />
+                            <x-text-input id="title_description" name="title_description" type="text" class="mt-1 block w-full"
+                                :value="old('title_description', '')" />
+                            <x-input-error :messages="$errors->get('title_description')" class="mt-2" />
+                        </div>
+
+                        {{-- Quote Description --}}
+                        <div class="md:col-span-12">
+                            <x-input-label for="quote_description" :value="__('Description Quotation (quote block on project detail page)')" />
+                            <x-text-textarea id="quote_description" name="quote_description" class="mt-1 block w-full">
+                                {{ old('quote_description') }}
+                            </x-text-textarea>
+                            <x-input-error :messages="$errors->get('quote_description')" class="mt-2" />
+                        </div>
+
+                        {{-- Materiality Title --}}
+                        <div class="md:col-span-12">
+                            <x-input-label for="materiality_title" :value="__('Materiality Section Title')" />
+                            <x-text-input id="materiality_title" name="materiality_title" type="text" class="mt-1 block w-full"
+                                :value="old('materiality_title', '')" />
+                            <x-input-error :messages="$errors->get('materiality_title')" class="mt-2" />
+                        </div>
+
+                        {{-- Materiality Description --}}
+                        <div class="md:col-span-12">
+                            <x-input-label for="materiality_description" :value="__('Materiality Section Description')" />
+                            <x-text-textarea id="materiality_description" name="materiality_description" class="mt-1 block w-full">
+                                {{ old('materiality_description') }}
+                            </x-text-textarea>
+                            <x-input-error :messages="$errors->get('materiality_description')" class="mt-2" />
+                        </div>
+
+                        {{-- Materiality Images --}}
+                        <div class="md:col-span-12">
+                            <x-input-label for="materiality_images" :value="__('Materiality Images (Multiple)')" />
+                            <x-text-input id="materiality_images" name="materiality_images[]" type="file" accept="image/*" multiple
+                                class="mt-1 block w-full" />
+                            <x-input-error :messages="$errors->get('materiality_images')" class="mt-2" />
+                        </div>
                         <div class="md:col-span-12">
                             <x-input-label for="meta_title" :value="__('Meta Title')" />
                             <x-text-input id="meta_title" name="meta_title" type="text" class="mt-1 block w-full"
@@ -323,6 +372,26 @@
                             <x-text-input id="payment_plans" name="payment_plan" type="file"
                                 accept="application/pdf,image/*" class="mt-1 block w-full" />
                             <x-input-error :messages="$errors->get('payment_plans')" class="mt-2" />
+                        </div>
+
+                        {{-- Video --}}
+                        <div class="md:col-span-12">
+                            <x-input-label for="video" :value="__('Project Video (MP4, MOV, AVI, WebM – max 256 MB)')" />
+                            <x-text-input id="video" name="video" type="file"
+                                accept="video/mp4,video/quicktime,video/avi,video/webm,video/*"
+                                class="mt-1 block w-full" />
+                            <x-input-error :messages="$errors->get('video')" class="mt-2" />
+                        </div>
+
+                        {{-- Virtual Tour (360°) URL --}}
+                        <div class="md:col-span-12">
+                            <x-input-label for="virtual_tour_url" :value="__('360° Virtual Tour URL')" />
+                            <x-text-input id="virtual_tour_url" name="virtual_tour_url" type="url"
+                                class="mt-1 block w-full"
+                                placeholder="https://example.com/virtual-tour"
+                                :value="old('virtual_tour_url')" />
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Paste the full URL of the 360° virtual tour website. When provided, a 360° button appears in the app for this project.</p>
+                            <x-input-error :messages="$errors->get('virtual_tour_url')" class="mt-2" />
                         </div>
 
                     </div>
