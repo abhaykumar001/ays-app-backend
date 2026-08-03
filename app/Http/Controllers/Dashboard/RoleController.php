@@ -10,6 +10,12 @@ use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
+    // Roles the app depends on structurally — mobile role identification (Agent,
+    // Client) or full dashboard access (Super Admin) — so deleting them by
+    // accident would break login/permission checks elsewhere. Not editable via
+    // this list; just excluded from deletion.
+    public const PROTECTED_ROLES = ['Super Admin', 'Agent', 'Client'];
+
     public function __construct()
     {
         $this->middleware('permission:view_roles')->only(['index', 'show']);
@@ -24,13 +30,15 @@ class RoleController extends Controller
     {
         $roles = Role::with('permissions')->where('name', '!=', 'Super Admin')->get();
         $permissionsByModule = Permission::all()->groupBy('module');
-        return view('dashboard.roles.index', compact('roles', 'permissionsByModule'));
+        $protectedRoles = self::PROTECTED_ROLES;
+        return view('dashboard.roles.index', compact('roles', 'permissionsByModule', 'protectedRoles'));
     }
 
     public function create()
     {
         $permissionsByModule = Permission::all()->groupBy('module');
-        return view('dashboard.roles.index', compact('permissionsByModule'));
+        $protectedRoles = self::PROTECTED_ROLES;
+        return view('dashboard.roles.index', compact('permissionsByModule', 'protectedRoles'));
     }
 
     /**
@@ -106,6 +114,13 @@ class RoleController extends Controller
     public function destroy(string $id)
     {
         $role = Role::findOrFail($id);
+
+        if (in_array($role->name, self::PROTECTED_ROLES, true)) {
+            return redirect()->back()
+                ->with('status', 'error')
+                ->with('message', "The \"{$role->name}\" role is built into the app and can't be deleted.");
+        }
+
         $role->delete();
         return redirect()->back()->with('status', 'success')->with('message', 'Role deleted successfully.');
     }
