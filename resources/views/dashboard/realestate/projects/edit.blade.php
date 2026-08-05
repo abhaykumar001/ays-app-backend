@@ -164,8 +164,9 @@
                         </div>
                         @endcanany
 
-                        @can('edit_projects')
-                        {{-- Total Units --}}
+                        {{-- Total Units / Available Units — visible to full project editors and to
+                             Financial Team (edit_project_pricing) --}}
+                        @canany(['edit_projects', 'edit_project_pricing'])
                         <div class="md:col-span-4">
                             <x-input-label for="total_units" :value="__('Total Units')" />
                             <x-text-input id="total_units" name="total_units" type="number" class="mt-1 block w-full"
@@ -173,14 +174,15 @@
                             <x-input-error :messages="$errors->get('total_units')" class="mt-2" />
                         </div>
 
-                        {{-- Available Units --}}
                         <div class="md:col-span-4">
                             <x-input-label for="available_units" :value="__('Available Units')" />
                             <x-text-input id="available_units" name="available_units" type="number"
                                 class="mt-1 block w-full" :value="old('available_units', $project->available_units)" />
                             <x-input-error :messages="$errors->get('available_units')" class="mt-2" />
                         </div>
+                        @endcanany
 
+                        @can('edit_projects')
                         {{-- ROI --}}
                         <div class="md:col-span-4">
                             <x-input-label for="roi" :value="__('Highest ROI')" />

@@ -12,10 +12,11 @@ use Spatie\Permission\Models\Role;
  * safe to re-run any time to bring Financial Team's permission set back
  * in line with this list.
  *
- * Scope: edit pricing fields on Projects/Units, full CRUD on project-level
- * Payment Plans and Project Offers (both already separate from the
- * project/unit edit forms). No create/delete on Projects or Units
- * themselves, no access to unrelated modules (content, bookings, users, etc).
+ * Scope: edit pricing fields on Projects/Units (plus Total/Available Units on
+ * Projects, and Floor/Availability Status/Is Active/Is Featured on Units),
+ * full CRUD on project-level Payment Plans and Project Offers (both already
+ * separate from the project/unit edit forms). No create/delete on Projects or
+ * Units themselves, no access to unrelated modules (content, bookings, users, etc).
  */
 class FinancialTeamRoleSeeder extends Seeder
 {

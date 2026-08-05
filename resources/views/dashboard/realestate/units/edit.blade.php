@@ -99,8 +99,8 @@
                         </div>
                         @endcan
 
-                        {{-- Price / Price per SqFt — visible to full unit editors and to
-                             Financial Team (edit_unit_pricing) --}}
+                        {{-- Price / Price per SqFt / Floor / Availability / Active / Featured —
+                             visible to full unit editors and to Financial Team (edit_unit_pricing) --}}
                         @canany(['edit_units', 'edit_unit_pricing'])
                         <div class="md:col-span-4">
                             <div class="flex items-center justify-between mb-1">
@@ -128,6 +128,37 @@
                             <x-text-input id="price_per_sqft" name="price_per_sqft" type="text" class="mt-1 block w-full"
                                 :value="old('price_per_sqft', $unit->price_per_sqft)" />
                             <x-input-error :messages="$errors->get('price_per_sqft')" class="mt-2" />
+                        </div>
+
+                        <div class="md:col-span-4">
+                            <x-input-label for="floor" :value="__('Floor')" />
+                            <x-text-input id="floor" name="floor" type="text" class="mt-1 block w-full"
+                                :value="old('floor', $unit->floor)" placeholder="e.g. 5, 2-4-6-8, G-10" />
+                            <x-input-error :messages="$errors->get('floor')" class="mt-2" />
+                        </div>
+
+                        <div class="md:col-span-4">
+                            <x-input-label for="availability_status" :value="__('Availability Status')" />
+                            <x-select name="availability_status" :options="[
+                                'available' => 'Available',
+                                'reserved'  => 'Reserved',
+                                'sold'      => 'Sold',
+                            ]" :value="old('availability_status', $unit->availability_status)" />
+                            <x-input-error :messages="$errors->get('availability_status')" class="mt-2" />
+                        </div>
+
+                        <div class="md:col-span-4">
+                            <x-input-label for="is_active" :value="__('Is Active')" />
+                            <x-select name="is_active" :options="['1' => 'Active', '0' => 'Inactive']"
+                                :value="old('is_active', $unit->is_active ? '1' : '0')" />
+                            <x-input-error :messages="$errors->get('is_active')" class="mt-2" />
+                        </div>
+
+                        <div class="md:col-span-4">
+                            <x-input-label for="is_featured" :value="__('Is Featured')" />
+                            <x-select name="is_featured" :options="['1' => 'Yes', '0' => 'No']"
+                                :value="old('is_featured', $unit->is_featured ? '1' : '0')" />
+                            <x-input-error :messages="$errors->get('is_featured')" class="mt-2" />
                         </div>
                         @endcanany
 
@@ -166,13 +197,6 @@
                             <x-text-input id="plot_size_sqft" name="plot_size_sqft" type="number" class="mt-1 block w-full"
                                 :value="old('plot_size_sqft', $unit->plot_size_sqft)" />
                             <x-input-error :messages="$errors->get('plot_size_sqft')" class="mt-2" />
-                        </div>
-
-                        <div class="md:col-span-4">
-                            <x-input-label for="floor" :value="__('Floor')" />
-                            <x-text-input id="floor" name="floor" type="text" class="mt-1 block w-full"
-                                :value="old('floor', $unit->floor)" placeholder="e.g. 5, 2-4-6-8, G-10" />
-                            <x-input-error :messages="$errors->get('floor')" class="mt-2" />
                         </div>
 
                         <div class="md:col-span-4">
@@ -344,30 +368,6 @@
                                 accept="video/mp4,video/quicktime,video/avi,video/webm,video/*"
                                 class="mt-1 block w-full" />
                             <x-input-error :messages="$errors->get('video')" class="mt-2" />
-                        </div>
-
-                        <div class="md:col-span-4">
-                            <x-input-label for="availability_status" :value="__('Availability Status')" />
-                            <x-select name="availability_status" :options="[
-                                'available' => 'Available',
-                                'reserved'  => 'Reserved',
-                                'sold'      => 'Sold',
-                            ]" :value="old('availability_status', $unit->availability_status)" />
-                            <x-input-error :messages="$errors->get('availability_status')" class="mt-2" />
-                        </div>
-
-                        <div class="md:col-span-4">
-                            <x-input-label for="is_active" :value="__('Is Active')" />
-                            <x-select name="is_active" :options="['1' => 'Active', '0' => 'Inactive']"
-                                :value="old('is_active', $unit->is_active ? '1' : '0')" />
-                            <x-input-error :messages="$errors->get('is_active')" class="mt-2" />
-                        </div>
-
-                        <div class="md:col-span-4">
-                            <x-input-label for="is_featured" :value="__('Is Featured')" />
-                            <x-select name="is_featured" :options="['1' => 'Yes', '0' => 'No']"
-                                :value="old('is_featured', $unit->is_featured ? '1' : '0')" />
-                            <x-input-error :messages="$errors->get('is_featured')" class="mt-2" />
                         </div>
                         @endcan
                     </div>

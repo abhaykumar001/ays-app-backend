@@ -172,7 +172,7 @@
 
                         <div>
                             <x-input-label for="role_name" :value="__('Role Name')" />
-                            <x-text-input id="role_name" type="text" class="mt-1 block w-full"
+                            <x-text-input id="role_name" name="name" type="text" class="mt-1 block w-full"
                                 x-model="roleName" required autocomplete="off" />
                             @if ($hadValidationError)
                                 <x-input-error class="mt-2" :messages="$errors->get('name')" />
@@ -244,35 +244,177 @@
             </div>
         </div>
 
-        {{-- Delete confirmation --}}
-        <div x-show="deleteTarget" x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-            @keydown.escape.window="deleteTarget = null">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-sm w-full p-6" @click.outside="deleteTarget = null">
-                <div class="flex items-start gap-3">
-                    <div class="shrink-0 w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
-                        <i class="bi bi-exclamation-triangle text-red-600 dark:text-red-400"></i>
+        {{-- Custom CSS for the Delete Modal to bypass Tailwind compilation issues --}}
+        <style>
+            .custom-modal-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.6);
+                z-index: 9998;
+                backdrop-filter: blur(2px);
+            }
+            .custom-modal-wrapper {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 1rem;
+            }
+            .custom-modal-box {
+                background-color: #ffffff;
+                border-radius: 12px;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                width: 100%;
+                max-width: 480px;
+                overflow: hidden;
+                font-family: inherit;
+                border: 1px solid #e5e7eb;
+            }
+            .custom-modal-body {
+                padding: 24px;
+                display: flex;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            .custom-modal-icon {
+                flex-shrink: 0;
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                background-color: #fee2e2;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #dc2626;
+                font-size: 24px;
+            }
+            .custom-modal-text {
+                margin-top: 4px;
+            }
+            .custom-modal-text h3 {
+                margin: 0 0 8px 0;
+                font-size: 18px;
+                font-weight: 600;
+                color: #111827;
+                line-height: 1.2;
+            }
+            .custom-modal-text p {
+                margin: 0;
+                font-size: 14px;
+                line-height: 1.5;
+                color: #4b5563;
+            }
+            .custom-modal-footer {
+                background-color: #f9fafb;
+                padding: 16px 24px;
+                display: flex;
+                justify-content: flex-end;
+                gap: 12px;
+                border-top: 1px solid #e5e7eb;
+            }
+            .custom-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+                font-weight: 600;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: inline-flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .custom-btn-cancel {
+                background-color: #ffffff;
+                color: #374151;
+                border: 1px solid #d1d5db;
+            }
+            .custom-btn-cancel:hover {
+                background-color: #f3f4f6;
+            }
+            .custom-btn-danger {
+                background-color: #dc2626;
+                color: #ffffff;
+                border: 1px solid #dc2626;
+            }
+            .custom-btn-danger:hover {
+                background-color: #b91c1c;
+                border-color: #b91c1c;
+            }
+
+            /* Dark mode support */
+            @media (prefers-color-scheme: dark) {
+                .custom-modal-box { 
+                    background-color: #1f2937; 
+                    border-color: #374151;
+                }
+                .custom-modal-text h3 { color: #f9fafb; }
+                .custom-modal-text p { color: #9ca3af; }
+                .custom-modal-icon { 
+                    background-color: rgba(153, 27, 27, 0.2); 
+                    color: #ef4444; 
+                }
+                .custom-modal-footer { 
+                    background-color: rgba(17, 24, 39, 0.5); 
+                    border-top-color: #374151; 
+                }
+                .custom-btn-cancel { 
+                    background-color: #374151; 
+                    color: #f9fafb; 
+                    border-color: #4b5563; 
+                }
+                .custom-btn-cancel:hover { 
+                    background-color: #4b5563; 
+                }
+            }
+        </style>
+
+        {{-- Delete confirmation (Standard CSS) --}}
+        <div x-show="deleteTarget" style="display: none;" x-cloak>
+            
+            <div class="custom-modal-backdrop" 
+                 x-show="deleteTarget" 
+                 x-transition.opacity></div>
+
+            <div class="custom-modal-wrapper"
+                 x-show="deleteTarget"
+                 x-transition
+                 @click.self="deleteTarget = null"
+                 @keydown.escape.window="deleteTarget = null">
+                 
+                <div class="custom-modal-box">
+                    <div class="custom-modal-body">
+                        <div class="custom-modal-icon">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                        <div class="custom-modal-text">
+                            <h3>{{ __('Delete this role?') }}</h3>
+                            <p>
+                                {{ __('Are you sure you want to delete') }} "<strong style="color: inherit;" x-text="deleteTarget?.name"></strong>"?
+                                {{ __('Anyone currently assigned this role will immediately lose these permissions. This action cannot be undone.') }}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="font-semibold text-gray-900 dark:text-gray-100">{{ __('Delete this role?') }}</h3>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                            {{ __('Are you sure you want to delete') }} "<span class="font-medium" x-text="deleteTarget?.name"></span>"?
-                            {{ __('Anyone currently assigned this role will immediately lose these permissions. This can\'t be undone.') }}
-                        </p>
+                    
+                    <div class="custom-modal-footer">
+                        <button type="button" @click="deleteTarget = null" class="custom-btn custom-btn-cancel">
+                            {{ __('Cancel') }}
+                        </button>
+                        <button type="button" @click="confirmDelete()" class="custom-btn custom-btn-danger">
+                            {{ __('Yes, delete') }}
+                        </button>
                     </div>
-                </div>
-                <div class="flex justify-end gap-2 mt-5">
-                    <button type="button" @click="deleteTarget = null"
-                        class="px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
-                        {{ __('Cancel') }}
-                    </button>
-                    <button type="button" @click="confirmDelete()"
-                        class="px-3 py-1.5 text-sm rounded-md bg-red-600 text-white hover:bg-red-700">
-                        {{ __('Yes, delete') }}
-                    </button>
                 </div>
             </div>
         </div>
+
     </div>
 
     <script>

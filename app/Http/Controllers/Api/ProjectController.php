@@ -13,6 +13,17 @@ use Illuminate\Http\Request;
 class ProjectController extends Controller
 {
     /**
+     * Agents see both active and inactive projects; everyone else
+     * (guests, Client, Owner) only sees active projects.
+     */
+    private function visibleProjects(Request $request)
+    {
+        $role = $request->user('sanctum')?->getRoleNames()->first();
+
+        return $role === 'Agent' ? Project::query() : Project::active();
+    }
+
+    /**
      * List all active projects.
      *
      * Query params:
@@ -22,7 +33,7 @@ class ProjectController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Project::active()
+        $query = $this->visibleProjects($request)
             ->with(['amenities', 'community', 'accommodations'])
             ->orderBy('sort_order')
             ->orderByDesc('is_featured');
@@ -64,9 +75,9 @@ class ProjectController extends Controller
     /**
      * Return a single project with its units and amenities.
      */
-    public function show(string $slug): JsonResponse
+    public function show(Request $request, string $slug): JsonResponse
     {
-        $project = Project::active()
+        $project = $this->visibleProjects($request)
             ->with([
                 'amenities', 'community', 'accommodations', 'units.amenities', 'units.paymentPlans.milestones',
                 'paymentPlans' => fn($q) => $q->where('is_active', true)->orderBy('id'),
@@ -90,9 +101,9 @@ class ProjectController extends Controller
     /**
      * Return public construction updates for a project.
      */
-    public function constructionUpdates(string $slug): JsonResponse
+    public function constructionUpdates(Request $request, string $slug): JsonResponse
     {
-        $project = Project::active()
+        $project = $this->visibleProjects($request)
             ->where('slug', $slug)
             ->firstOrFail();
 
@@ -138,9 +149,9 @@ class ProjectController extends Controller
     /**
      * Return all units for a project (useful for inventory tab).
      */
-    public function units(string $slug): JsonResponse
+    public function units(Request $request, string $slug): JsonResponse
     {
-        $project = Project::active()
+        $project = $this->visibleProjects($request)
             ->with(['units.amenities', 'units.paymentPlans.milestones', 'amenities'])
             ->where('slug', $slug)
             ->firstOrFail();

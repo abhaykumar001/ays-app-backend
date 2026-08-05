@@ -155,13 +155,15 @@ class UnitsController extends Controller
         $unit = \App\Models\unit::findOrFail($id);
 
         // Users with only edit_unit_pricing (e.g. Financial Team) can touch price
-        // fields and the payment-plan repeater alone — the edit form hides
-        // everything else for them, and this must be enforced here too so a
-        // crafted request can't change any other field.
+        // fields, floor, availability/active/featured status, and the payment-plan
+        // repeater alone — the edit form hides everything else for them, and this
+        // must be enforced here too so a crafted request can't change any other field.
         if (!auth()->user()->can('edit_units')) {
             $request->validate([
-                'price'          => 'nullable|numeric|min:0',
-                'price_per_sqft' => 'nullable|string|max:100',
+                'price'                => 'nullable|numeric|min:0',
+                'price_per_sqft'       => 'nullable|string|max:100',
+                'floor'                => 'nullable|string|max:100',
+                'availability_status'  => 'required|in:available,reserved,sold',
 
                 'payment_plans'                              => 'nullable|array',
                 'payment_plans.*.name'                        => 'required_with:payment_plans|string|max:255',
@@ -174,8 +176,12 @@ class UnitsController extends Controller
             ]);
 
             $unit->update([
-                'price'          => $request->price !== '' ? $request->price : null,
-                'price_per_sqft' => $request->price_per_sqft !== '' ? $request->price_per_sqft : null,
+                'price'                => $request->price !== '' ? $request->price : null,
+                'price_per_sqft'       => $request->price_per_sqft !== '' ? $request->price_per_sqft : null,
+                'floor'                => $request->floor !== '' ? $request->floor : null,
+                'availability_status'  => $request->availability_status,
+                'is_active'            => filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN),
+                'is_featured'          => $request->is_featured ?? 0,
             ]);
 
             $this->syncPaymentPlans($unit, $request->input('payment_plans', []));

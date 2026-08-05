@@ -170,18 +170,22 @@ class ProjectsController extends Controller
         $project = Project::findOrFail($id);
 
         // Users with only edit_project_pricing (e.g. Financial Team) can touch
-        // pricing fields alone — the edit form hides everything else for them,
-        // and this must be enforced here too so a crafted request can't change
-        // any other field.
+        // pricing + unit-count fields alone — the edit form hides everything
+        // else for them, and this must be enforced here too so a crafted
+        // request can't change any other field.
         if (!auth()->user()->can('edit_projects')) {
             $request->validate([
-                'starting_price' => 'nullable|numeric|min:0',
-                'price_per_sqft' => 'nullable|numeric|min:0',
+                'starting_price'   => 'nullable|numeric|min:0',
+                'price_per_sqft'   => 'nullable|numeric|min:0',
+                'total_units'      => 'nullable|integer|min:0',
+                'available_units'  => 'nullable|integer|min:0',
             ]);
 
             $project->update([
-                'starting_price' => $request->starting_price !== '' ? $request->starting_price : null,
-                'price_per_sqft' => $request->price_per_sqft !== '' ? $request->price_per_sqft : null,
+                'starting_price'   => $request->starting_price !== '' ? $request->starting_price : null,
+                'price_per_sqft'   => $request->price_per_sqft !== '' ? $request->price_per_sqft : null,
+                'total_units'      => $request->total_units !== '' ? $request->total_units : null,
+                'available_units'  => $request->available_units !== '' ? $request->available_units : null,
             ]);
 
             return redirect()->route('projects.index')

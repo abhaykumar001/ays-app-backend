@@ -20,12 +20,12 @@ class FieldPermissionSeeder extends Seeder
             [
                 'name' => 'edit_project_pricing',
                 'module' => 'Projects',
-                'description' => 'Edit only the pricing fields (Starting Price, Price per SqFt) on a project — not the rest of the project form.',
+                'description' => 'Edit only the pricing fields (Starting Price, Price per SqFt), Total Units, and Available Units on a project — not the rest of the project form.',
             ],
             [
                 'name' => 'edit_unit_pricing',
                 'module' => 'Units',
-                'description' => 'Edit only the pricing fields (Price, Price per SqFt) and the unit payment-plan repeater on a unit — not the rest of the unit form.',
+                'description' => 'Edit only the pricing fields (Price, Price per SqFt), Floor, Availability Status, Is Active, Is Featured, and the unit payment-plan repeater on a unit — not the rest of the unit form.',
             ],
         ];
 
