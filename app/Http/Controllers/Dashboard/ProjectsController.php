@@ -15,7 +15,7 @@ class ProjectsController extends Controller
     {
         $this->middleware('permission:view_projects')->only(['index', 'show']);
         $this->middleware('permission:create_projects')->only(['create', 'store']);
-        $this->middleware('permission:edit_projects|edit_project_pricing')->only(['edit', 'update']);
+        $this->middleware('permission:edit_projects|edit_project_pricing')->only(['edit', 'update', 'destroyMedia']);
         $this->middleware('permission:delete_projects')->only(['destroy']);
     }
 
@@ -55,17 +55,22 @@ class ProjectsController extends Controller
             'latitude'              => 'nullable|numeric|between:-90,90',
             'longitude'             => 'nullable|numeric|between:-180,180',
             'image'                 => 'nullable|image|max:5120',
+            'gallery'               => 'nullable|array|max:10',
             'gallery.*'             => 'nullable|image|max:5120',
-            'brochure'              => 'nullable|mimes:pdf|max:10240',
-            'floorplan'             => 'nullable|mimes:pdf,jpg,jpeg,png,webp|max:10240',
-            'payment_plan'          => 'nullable|mimes:pdf,jpg,jpeg,png,webp|max:10240',
+            'brochure'              => 'nullable|mimes:pdf|max:102400',
+            'floorplan'             => 'nullable|mimes:pdf,jpg,jpeg,png,webp|max:102400',
+            'payment_plan'          => 'nullable|mimes:pdf,jpg,jpeg,png,webp|max:102400',
             'video'                 => 'nullable|mimes:mp4,mov,avi,webm|max:262144',
             'virtual_tour_url'      => 'nullable|url|max:2048',
             'title_description'     => 'nullable|string',
             'quote_description'     => 'nullable|string',
             'materiality_title'     => 'nullable|string|max:255',
             'materiality_description' => 'nullable|string',
+            'materiality_images'    => 'nullable|array|max:5',
             'materiality_images.*'  => 'nullable|image|max:5120',
+        ], [
+            'gallery.max'            => 'You can upload a maximum of 10 gallery images at a time. Save these first, then upload more separately if needed.',
+            'materiality_images.max' => 'You can upload a maximum of 5 materiality images at a time. Save these first, then upload more separately if needed.',
         ]);
 
         $project = Project::create([
@@ -213,17 +218,22 @@ class ProjectsController extends Controller
             'latitude'              => 'nullable|numeric|between:-90,90',
             'longitude'             => 'nullable|numeric|between:-180,180',
             'image'                 => 'nullable|image|max:5120',
+            'gallery'               => 'nullable|array|max:10',
             'gallery.*'             => 'nullable|image|max:5120',
-            'brochure'              => 'nullable|mimes:pdf|max:10240',
-            'floorplan'             => 'nullable|mimes:pdf,jpg,jpeg,png,webp|max:10240',
-            'payment_plan'          => 'nullable|mimes:pdf,jpg,jpeg,png,webp|max:10240',
+            'brochure'              => 'nullable|mimes:pdf|max:102400',
+            'floorplan'             => 'nullable|mimes:pdf,jpg,jpeg,png,webp|max:102400',
+            'payment_plan'          => 'nullable|mimes:pdf,jpg,jpeg,png,webp|max:102400',
             'video'                 => 'nullable|mimes:mp4,mov,avi,webm|max:262144',
             'virtual_tour_url'      => 'nullable|url|max:2048',
             'title_description'     => 'nullable|string',
             'quote_description'     => 'nullable|string',
             'materiality_title'     => 'nullable|string|max:255',
             'materiality_description' => 'nullable|string',
+            'materiality_images'    => 'nullable|array|max:5',
             'materiality_images.*'  => 'nullable|image|max:5120',
+        ], [
+            'gallery.max'            => 'You can upload a maximum of 10 gallery images at a time. Save these first, then upload more separately if needed.',
+            'materiality_images.max' => 'You can upload a maximum of 5 materiality images at a time. Save these first, then upload more separately if needed.',
         ]);
 
         $project->update([
@@ -274,8 +284,13 @@ class ProjectsController extends Controller
 
         // Media uploads — only replace if a new file is uploaded
         if ($request->hasFile('image')) {
-            $project->clearMediaCollection('images');
-            $project->addMediaFromRequest('image')->toMediaCollection('images');
+            // Only remove the current main image (first item in the shared 'images'
+            // collection), not the whole collection — clearing the collection here
+            // used to wipe the gallery too whenever a new main image was uploaded.
+            $project->getFirstMedia('images')?->delete();
+            $newMainImage = $project->addMediaFromRequest('image')->toMediaCollection('images');
+            $newMainImage->order_column = 0;
+            $newMainImage->save();
         }
         if ($request->hasFile('gallery')) {
             foreach ($request->file('gallery') as $file) {
@@ -307,6 +322,18 @@ class ProjectsController extends Controller
         return redirect()->route('projects.index')
             ->with('status', 'success')
             ->with('message', 'Project updated successfully.');
+    }
+
+    public function destroyMedia(Project $project, int $media)
+    {
+        $mediaItem = $project->media()->where('id', $media)->firstOrFail();
+        $mediaItem->delete();
+
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('status', 'success')->with('message', 'File removed successfully.');
     }
 
     public function destroy(string $id)

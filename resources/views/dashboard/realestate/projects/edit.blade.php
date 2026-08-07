@@ -333,7 +333,11 @@
                                 <x-input-label :value="__('Current Materiality Images')" />
                                 <div class="flex flex-wrap gap-2 mt-1">
                                     @foreach ($project->getMedia('materiality') as $media)
-                                        <img src="{{ $media->getUrl() }}" class="h-24 w-auto rounded" alt="Materiality image">
+                                        <div class="relative w-24 h-24" data-media-item="{{ $media->id }}">
+                                            <img src="{{ $media->getUrl() }}" class="w-full h-full object-cover rounded" alt="Materiality image">
+                                            <button type="button" onclick="removeProjectMedia({{ $media->id }}, this)"
+                                                class="absolute top-1 right-1 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 text-xs shadow">&times;</button>
+                                        </div>
                                     @endforeach
                                 </div>
                             </div>
@@ -341,7 +345,7 @@
 
                         {{-- Materiality Images --}}
                         <div class="md:col-span-12">
-                            <x-input-label for="materiality_images" :value="__('Add Materiality Images (appended to existing)')" />
+                            <x-input-label for="materiality_images" :value="__('Add Materiality Images (up to 5 at a time — appended to existing)')" />
                             <x-text-input id="materiality_images" name="materiality_images[]" type="file" accept="image/*" multiple
                                 class="mt-1 block w-full" />
                             <x-input-error :messages="$errors->get('materiality_images')" class="mt-2" />
@@ -369,17 +373,21 @@
                         </div>
 
                         {{-- Existing Image --}}
-                        @if ($project->getFirstMediaUrl('images'))
+                        @if ($project->getFirstMedia('images'))
                             <div class="md:col-span-12">
-                                <x-input-label :value="__('Current Project Image')" />
-                                <img src="{{ $project->getFirstMediaUrl('images', 'resize') ?: $project->getFirstMediaUrl('images') }}"
-                                    class="h-32 w-auto rounded mt-1" alt="Project image">
+                                <x-input-label :value="__('Current Project Image (remove it to upload a replacement)')" />
+                                <div class="relative w-40 h-32 mt-1" data-media-item="{{ $project->getFirstMedia('images')->id }}">
+                                    <img src="{{ $project->getFirstMediaUrl('images', 'resize') ?: $project->getFirstMediaUrl('images') }}"
+                                        class="w-full h-full object-cover rounded" alt="Project image">
+                                    <button type="button" onclick="removeProjectMedia({{ $project->getFirstMedia('images')->id }}, this)"
+                                        class="absolute top-1 right-1 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 text-xs shadow">&times;</button>
+                                </div>
                             </div>
                         @endif
 
                         {{-- New Image --}}
                         <div class="md:col-span-6">
-                            <x-input-label for="image" :value="__('Replace Project Image')" />
+                            <x-input-label for="image" :value="__('Upload Project Image')" />
                             <x-text-input id="image" name="image" type="file" accept="image/*"
                                 class="mt-1 block w-full" />
                             <x-input-error :messages="$errors->get('image')" class="mt-2" />
@@ -387,15 +395,39 @@
 
                         {{-- Brochure --}}
                         <div class="md:col-span-6">
-                            <x-input-label for="brochure" :value="__('Replace Brochure (PDF)')" />
+                            <x-input-label for="brochure" :value="__('Upload Brochure (PDF, max 100 MB)')" />
+                            @if ($project->getFirstMedia('brochures'))
+                                <div class="flex items-center gap-2 mt-1 mb-1 text-sm" data-media-item="{{ $project->getFirstMedia('brochures')->id }}">
+                                    <a href="{{ $project->getFirstMediaUrl('brochures') }}" target="_blank"
+                                        class="text-indigo-600 hover:underline truncate max-w-xs">{{ $project->getFirstMedia('brochures')->file_name }}</a>
+                                    <button type="button" onclick="removeProjectMedia({{ $project->getFirstMedia('brochures')->id }}, this)"
+                                        class="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 text-xs shadow shrink-0">&times;</button>
+                                </div>
+                            @endif
                             <x-text-input id="brochure" name="brochure" type="file" accept="application/pdf"
                                 class="mt-1 block w-full" />
                             <x-input-error :messages="$errors->get('brochure')" class="mt-2" />
                         </div>
 
+                        {{-- Existing Gallery Images --}}
+                        @if ($project->getMedia('images')->skip(1)->isNotEmpty())
+                            <div class="md:col-span-12">
+                                <x-input-label :value="__('Current Gallery Images')" />
+                                <div class="flex flex-wrap gap-2 mt-1">
+                                    @foreach ($project->getMedia('images')->skip(1) as $media)
+                                        <div class="relative w-24 h-24" data-media-item="{{ $media->id }}">
+                                            <img src="{{ $media->getUrl() }}" class="w-full h-full object-cover rounded" alt="Gallery image">
+                                            <button type="button" onclick="removeProjectMedia({{ $media->id }}, this)"
+                                                class="absolute top-1 right-1 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 text-xs shadow">&times;</button>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
                         {{-- Gallery --}}
                         <div class="md:col-span-12">
-                            <x-input-label for="gallery" :value="__('Add Gallery Images (appended to existing)')" />
+                            <x-input-label for="gallery" :value="__('Add Gallery Images (up to 10 at a time — appended to existing)')" />
                             <x-text-input id="gallery" name="gallery[]" type="file" accept="image/*" multiple
                                 class="mt-1 block w-full" />
                             <x-input-error :messages="$errors->get('gallery')" class="mt-2" />
@@ -403,7 +435,15 @@
 
                         {{-- Floorplan --}}
                         <div class="md:col-span-12">
-                            <x-input-label for="floorplans" :value="__('Replace Floorplan')" />
+                            <x-input-label for="floorplans" :value="__('Upload Floorplan (PDF or image, max 100 MB)')" />
+                            @if ($project->getFirstMedia('floorplans'))
+                                <div class="flex items-center gap-2 mt-1 mb-1 text-sm" data-media-item="{{ $project->getFirstMedia('floorplans')->id }}">
+                                    <a href="{{ $project->getFirstMediaUrl('floorplans') }}" target="_blank"
+                                        class="text-indigo-600 hover:underline truncate max-w-xs">{{ $project->getFirstMedia('floorplans')->file_name }}</a>
+                                    <button type="button" onclick="removeProjectMedia({{ $project->getFirstMedia('floorplans')->id }}, this)"
+                                        class="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 text-xs shadow shrink-0">&times;</button>
+                                </div>
+                            @endif
                             <x-text-input id="floorplans" name="floorplan" type="file" accept="application/pdf,image/*"
                                 class="mt-1 block w-full" />
                             <x-input-error :messages="$errors->get('floorplans')" class="mt-2" />
@@ -411,7 +451,15 @@
 
                         {{-- Payment Plan --}}
                         <div class="md:col-span-12">
-                            <x-input-label for="payment_plans" :value="__('Replace Payment Plan')" />
+                            <x-input-label for="payment_plans" :value="__('Upload Payment Plan (PDF or image, max 100 MB)')" />
+                            @if ($project->getFirstMedia('payment_plans'))
+                                <div class="flex items-center gap-2 mt-1 mb-1 text-sm" data-media-item="{{ $project->getFirstMedia('payment_plans')->id }}">
+                                    <a href="{{ $project->getFirstMediaUrl('payment_plans') }}" target="_blank"
+                                        class="text-indigo-600 hover:underline truncate max-w-xs">{{ $project->getFirstMedia('payment_plans')->file_name }}</a>
+                                    <button type="button" onclick="removeProjectMedia({{ $project->getFirstMedia('payment_plans')->id }}, this)"
+                                        class="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 text-xs shadow shrink-0">&times;</button>
+                                </div>
+                            @endif
                             <x-text-input id="payment_plans" name="payment_plan" type="file"
                                 accept="application/pdf,image/*" class="mt-1 block w-full" />
                             <x-input-error :messages="$errors->get('payment_plans')" class="mt-2" />
@@ -430,10 +478,14 @@
 
                         {{-- Video --}}
                         <div class="md:col-span-12">
-                            <x-input-label for="video" :value="__('Replace Project Video (MP4, MOV, AVI, WebM – max 256 MB)')" />
+                            <x-input-label for="video" :value="__('Upload Project Video (MP4, MOV, AVI, WebM – max 256 MB)')" />
                             @if ($project->hasMedia('videos'))
-                                <div class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                                    Current: {{ $project->getFirstMedia('videos')?->file_name }}
+                                <div class="mb-2 text-sm text-gray-500 dark:text-gray-400" data-media-item="{{ $project->getFirstMedia('videos')->id }}">
+                                    <div class="flex items-center gap-2">
+                                        Current: {{ $project->getFirstMedia('videos')?->file_name }}
+                                        <button type="button" onclick="removeProjectMedia({{ $project->getFirstMedia('videos')->id }}, this.closest('[data-media-item]'))"
+                                            class="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 text-xs shadow shrink-0">&times;</button>
+                                    </div>
                                     <video src="{{ $project->getFirstMediaUrl('videos') }}" controls class="mt-1 h-32 rounded"></video>
                                 </div>
                             @endif
@@ -459,6 +511,26 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function removeProjectMedia(mediaId, el) {
+            if (!confirm('Remove this file? This cannot be undone.')) return;
+
+            fetch("{{ url('dashboard/projects/' . $project->id . '/media') }}/" + mediaId, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+            }).then(function (response) {
+                if (!response.ok) throw new Error('Request failed');
+                const wrapper = el.closest('[data-media-item]') || el;
+                wrapper.remove();
+            }).catch(function () {
+                alert('Could not remove the file. Please try again.');
+            });
+        }
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

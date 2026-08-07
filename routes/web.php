@@ -76,6 +76,7 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
 
     // Projects
     Route::resource('projects', ProjectsController::class);
+    Route::delete('projects/{project}/media/{media}', [ProjectsController::class, 'destroyMedia'])->name('projects.media.destroy');
     Route::prefix('projects/{project}')->name('projects.')->group(function () { Route::resource('phases', PhasesController::class); });
     Route::prefix('projects/{project}')->name('projects.')->group(function () { Route::resource('highlights', HighlightsController::class); });
     Route::prefix('projects/{project}')->name('projects.')->group(function () { Route::resource('virtualTours', VirtualToursController::class); });
