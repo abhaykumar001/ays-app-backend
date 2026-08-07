@@ -138,11 +138,28 @@
                             <x-input-error :messages="$errors->get('amenities')" class="mt-2" />
                         </div>
 
+                        {{-- Price Display --}}
+                        <div class="md:col-span-4">
+                            <x-input-label for="price_status" :value="__('Price Display')" />
+                            <x-select name="price_status" required :options="[
+                                'price' => 'Show Starting Price',
+                                'on_request' => 'Price on Request',
+                                'coming_soon' => 'Coming Soon',
+                                'sold_out' => 'Sold Out',
+                            ]" :value="old('price_status', 'price')" onchange="
+                                const inp = document.getElementById('starting_price');
+                                if (this.value === 'price') { inp.disabled = false; inp.focus(); }
+                                else { inp.value = ''; inp.disabled = true; }
+                            " />
+                            <x-input-error :messages="$errors->get('price_status')" class="mt-2" />
+                        </div>
+
                         {{-- Starting Price --}}
                         <div class="md:col-span-4">
                             <x-input-label for="starting_price" :value="__('Starting Price')" />
                             <x-text-input id="starting_price" name="starting_price" type="text"
-                                class="mt-1 block w-full" :value="old('starting_price')" />
+                                class="mt-1 block w-full" :value="old('starting_price')"
+                                :disabled="old('price_status', 'price') !== 'price'" />
                             <x-input-error :messages="$errors->get('starting_price')" class="mt-2" />
                         </div>
 
@@ -227,6 +244,22 @@
                                 class="mt-1 block w-full" :value="old('handover')" />
                             <x-input-error :messages="$errors->get('handover')" class="mt-2" />
                         </div>
+                        {{-- On Handover Payment --}}
+                        <div class="md:col-span-3">
+                            <x-input-label for="on_handover_payment" :value="__('On Handover Payment (e.g. 60/40)')" />
+                            <x-text-input id="on_handover_payment" name="on_handover_payment" type="text"
+                                class="mt-1 block w-full" :value="old('on_handover_payment')" />
+                            <x-input-error :messages="$errors->get('on_handover_payment')" class="mt-2" />
+                        </div>
+
+                        {{-- Post Handover Payment --}}
+                        <div class="md:col-span-3">
+                            <x-input-label for="post_handover_payment" :value="__('Post Handover Payment (e.g. 44 MO)')" />
+                            <x-text-input id="post_handover_payment" name="post_handover_payment" type="text"
+                                class="mt-1 block w-full" :value="old('post_handover_payment')" />
+                            <x-input-error :messages="$errors->get('post_handover_payment')" class="mt-2" />
+                        </div>
+
                         {{-- Handover Date --}}
                         <div class="md:col-span-3">
                             <x-input-label for="handover_date" :value="__('Handover Date')" />

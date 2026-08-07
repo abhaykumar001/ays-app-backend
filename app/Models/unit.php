@@ -25,6 +25,7 @@ class unit extends Model implements HasMedia
         'size_sqft',
         'plot_size_sqft',
         'price',
+        'price_status',
         'price_per_sqft',
         'availability_status',
         'floor',

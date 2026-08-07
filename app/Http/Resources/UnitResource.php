@@ -13,10 +13,18 @@ class UnitResource extends JsonResource
         $bedroomsRaw = (string) ($this->bedrooms ?? '');
         $label = $bedroomsRaw !== '' ? $bedroomsRaw : 'N/A';
 
-        // Format price as "AED X,XXX,XXX"
-        $price = $this->price
-            ? 'AED ' . number_format((float) $this->price, 0, '.', ',')
-            : 'Price on request';
+        // Format price as "AED X,XXX,XXX", or show the chosen status text instead
+        $priceStatusLabels = [
+            'on_request'  => 'Price on Request',
+            'coming_soon' => 'Coming Soon',
+            'sold_out'    => 'Sold Out',
+        ];
+        $priceStatus = $this->price_status ?? 'price';
+        $price = $priceStatus === 'price'
+            ? ($this->price
+                ? 'AED ' . number_format((float) $this->price, 0, '.', ',')
+                : 'Price on Request')
+            : ($priceStatusLabels[$priceStatus] ?? 'Price on Request');
 
         // size_sqft is now a free-text string (e.g. "1,200", "901-1,867")
         $sqft = ($this->size_sqft !== null && $this->size_sqft !== '')
@@ -50,6 +58,7 @@ class UnitResource extends JsonResource
             'title'               => $this->title ?? '',
             'label'               => $label,
             'price'               => $price,
+            'price_status'        => $priceStatus,
             'bathrooms'           => (string) ($this->bathrooms ?? ''),
             'sqft_range'          => $sqft,
             'floors'              => $floors,

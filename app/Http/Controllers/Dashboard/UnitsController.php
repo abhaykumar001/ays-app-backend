@@ -63,6 +63,7 @@ class UnitsController extends Controller
             'parking'             => 'nullable|integer|min:0|max:255',
             'size_sqft'           => 'required|string|max:100',
             'plot_size_sqft'      => 'nullable|integer|min:0',
+            'price_status'        => 'required|in:price,on_request,coming_soon,sold_out',
             'price'               => 'nullable|numeric|min:0',
             'price_per_sqft'      => 'nullable|string|max:100',
             'floor'               => 'nullable|string|max:100',
@@ -97,7 +98,8 @@ class UnitsController extends Controller
             'parking'             => $request->parking !== '' ? $request->parking : null,
             'size_sqft'           => $request->size_sqft,
             'plot_size_sqft'      => $request->plot_size_sqft !== '' ? $request->plot_size_sqft : null,
-            'price'               => $request->price !== '' ? $request->price : null,
+            'price_status'        => $request->price_status,
+            'price'               => $request->price_status === 'price' && $request->price !== '' ? $request->price : null,
             'price_per_sqft'      => $request->price_per_sqft !== '' ? $request->price_per_sqft : null,
             'floor'               => $request->floor !== '' ? $request->floor : null,
             'view'                => $request->view ?: null,
@@ -160,6 +162,7 @@ class UnitsController extends Controller
         // must be enforced here too so a crafted request can't change any other field.
         if (!auth()->user()->can('edit_units')) {
             $request->validate([
+                'price_status'         => 'required|in:price,on_request,coming_soon,sold_out',
                 'price'                => 'nullable|numeric|min:0',
                 'price_per_sqft'       => 'nullable|string|max:100',
                 'floor'                => 'nullable|string|max:100',
@@ -176,7 +179,8 @@ class UnitsController extends Controller
             ]);
 
             $unit->update([
-                'price'                => $request->price !== '' ? $request->price : null,
+                'price_status'         => $request->price_status,
+                'price'                => $request->price_status === 'price' && $request->price !== '' ? $request->price : null,
                 'price_per_sqft'       => $request->price_per_sqft !== '' ? $request->price_per_sqft : null,
                 'floor'                => $request->floor !== '' ? $request->floor : null,
                 'availability_status'  => $request->availability_status,
@@ -202,6 +206,7 @@ class UnitsController extends Controller
             'parking'             => 'nullable|integer|min:0|max:255',
             'size_sqft'           => 'required|string|max:100',
             'plot_size_sqft'      => 'nullable|integer|min:0',
+            'price_status'        => 'required|in:price,on_request,coming_soon,sold_out',
             'price'               => 'nullable|numeric|min:0',
             'price_per_sqft'      => 'nullable|string|max:100',
             'floor'               => 'nullable|string|max:100',
@@ -235,7 +240,8 @@ class UnitsController extends Controller
             'parking'             => $request->parking !== '' ? $request->parking : null,
             'size_sqft'           => $request->size_sqft,
             'plot_size_sqft'      => $request->plot_size_sqft !== '' ? $request->plot_size_sqft : null,
-            'price'               => $request->price !== '' ? $request->price : null,
+            'price_status'        => $request->price_status,
+            'price'               => $request->price_status === 'price' && $request->price !== '' ? $request->price : null,
             'price_per_sqft'      => $request->price_per_sqft !== '' ? $request->price_per_sqft : null,
             'floor'               => $request->floor !== '' ? $request->floor : null,
             'view'                => $request->view ?: null,

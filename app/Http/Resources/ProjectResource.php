@@ -55,10 +55,9 @@ class ProjectResource extends JsonResource
             'materiality_title'       => $this->materiality_title ?? '',
             'materiality_description' => $this->materiality_description ?? '',
             'materiality_images'      => $materialityImages,
-            'starting_price'    => $this->starting_price
-                ? 'AED ' . number_format((float) $this->starting_price, 0, '.', ',')
-                : 'Price on request',
+            'starting_price'    => $this->formattedStartingPrice(),
             'status'            => $statusMap[$this->project_status] ?? 'ready',
+            'construction_progress' => (int) ($this->construction_progress ?? 0),
             'is_featured'       => (bool) $this->is_featured,
             'is_hot_selling'    => (bool) $this->is_hot_selling,
             'bedrooms_range'    => $this->bedrooms,
@@ -74,6 +73,8 @@ class ProjectResource extends JsonResource
                 ? UnitResource::collection($this->whenLoaded('units'))
                 : [],
             'handover'          => $this->handover ?? null,
+            'on_handover_payment'   => $this->on_handover_payment ?: null,
+            'post_handover_payment' => $this->post_handover_payment ?: null,
             'amenities'         => AmenityResource::collection(
                 $this->whenLoaded('amenities', fn() => $this->amenities, collect())
             ),
@@ -84,5 +85,24 @@ class ProjectResource extends JsonResource
                 $this->community ? new CommunityResource($this->community) : null
             ),
         ];
+    }
+
+    private function formattedStartingPrice(): string
+    {
+        $labels = [
+            'on_request'  => 'Price on Request',
+            'coming_soon' => 'Coming Soon',
+            'sold_out'    => 'Sold Out',
+        ];
+
+        $status = $this->price_status ?? 'price';
+
+        if ($status !== 'price') {
+            return $labels[$status] ?? 'Price on Request';
+        }
+
+        return $this->starting_price
+            ? 'AED ' . number_format((float) $this->starting_price, 0, '.', ',')
+            : 'Price on Request';
     }
 }

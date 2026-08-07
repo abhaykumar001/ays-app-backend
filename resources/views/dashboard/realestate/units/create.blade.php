@@ -94,22 +94,29 @@
                             <x-input-error :messages="$errors->get('amenities')" class="mt-2" />
                         </div>
 
-                        {{-- Starting Price --}}
+                        {{-- Price Display --}}
                         <div class="md:col-span-4">
-                            <div class="flex items-center justify-between mb-1">
-                                <x-input-label for="price" :value="__('Unit Price')" class="mb-0" />
-                                <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none">
-                                    <input type="checkbox" id="price_on_request_toggle" class="rounded"
-                                        onchange="
-                                            const inp = document.getElementById('price');
-                                            if (this.checked) { inp.value = ''; inp.disabled = true; }
-                                            else { inp.disabled = false; inp.focus(); }
-                                        ">
-                                    Price on Request
-                                </label>
-                            </div>
+                            <x-input-label for="price_status" :value="__('Price Display')" />
+                            <x-select name="price_status" required :options="[
+                                'price' => 'Show Unit Price',
+                                'on_request' => 'Price on Request',
+                                'coming_soon' => 'Coming Soon',
+                                'sold_out' => 'Sold Out',
+                            ]" :value="old('price_status', 'price')" onchange="
+                                const inp = document.getElementById('price');
+                                if (this.value === 'price') { inp.disabled = false; inp.focus(); }
+                                else { inp.value = ''; inp.disabled = true; }
+                            " />
+                            <x-input-error :messages="$errors->get('price_status')" class="mt-2" />
+                        </div>
+
+                        {{-- Unit Price --}}
+                        <div class="md:col-span-4">
+                            <x-input-label for="price" :value="__('Unit Price')" />
                             <x-text-input id="price" name="price" type="text"
-                                class="mt-1 block w-full" :value="old('price')" placeholder="e.g. AED 1,500,000" />
+                                class="mt-1 block w-full" :value="old('price')"
+                                :disabled="old('price_status', 'price') !== 'price'"
+                                placeholder="e.g. AED 1,500,000" />
                             <x-input-error :messages="$errors->get('price')" class="mt-2" />
                         </div>
 
