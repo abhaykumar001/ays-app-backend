@@ -11,20 +11,27 @@ use Illuminate\Http\Request;
 class EventController extends Controller
 {
     /**
-     * List upcoming published public events.
+     * List published public events.
      *
      * Query params:
+     *   when     = upcoming (default) | past | all
      *   type     = launch | open_house | site_visit | broker_meet | webinar | handover | other
      *   featured = 1 (filter to featured only)
      *   per_page = int (default 20)
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Event::published()
-            ->upcoming()
-            ->where('is_public', true)
-            ->orderBy('event_date')
-            ->orderBy('sort_order');
+        $when = $request->input('when', 'upcoming');
+
+        $query = Event::published()->where('is_public', true);
+
+        if ($when === 'past') {
+            $query->past()->orderByDesc('event_date')->orderBy('sort_order');
+        } elseif ($when === 'all') {
+            $query->orderByDesc('event_date')->orderBy('sort_order');
+        } else {
+            $query->upcoming()->orderBy('event_date')->orderBy('sort_order');
+        }
 
         if ($request->filled('type')) {
             $query->where('type', $request->type);

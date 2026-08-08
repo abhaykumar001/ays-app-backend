@@ -36,6 +36,9 @@ class EventResource extends JsonResource
             'capacity'               => $this->capacity,
             'registration_deadline'  => $this->registration_deadline?->toIso8601String(),
             'is_featured'            => (bool) $this->is_featured,
+            'is_past'                => $this->event_date
+                ? $this->event_date->lt(now()->startOfDay())
+                : false,
             'thumbnail_url'          => $thumbnail,
             'image_url'              => $image ?: null,
             'video_url'              => $video ?: null,

@@ -85,6 +85,11 @@ class Event extends Model implements HasMedia
         return $query->where('event_date', '>=', now()->toDateString());
     }
 
+    public function scopePast($query)
+    {
+        return $query->where('event_date', '<', now()->toDateString());
+    }
+
     public function scopeFeatured($query)
     {
         return $query->where('is_featured', true);
