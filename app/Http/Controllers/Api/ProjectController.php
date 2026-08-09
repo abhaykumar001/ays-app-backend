@@ -34,7 +34,7 @@ class ProjectController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = $this->visibleProjects($request)
-            ->with(['amenities', 'community', 'accommodations'])
+            ->with(['amenities', 'community', 'accommodations', 'latestConstructionUpdate'])
             ->orderBy('sort_order')
             ->orderByDesc('is_featured');
 
@@ -80,6 +80,7 @@ class ProjectController extends Controller
         $project = $this->visibleProjects($request)
             ->with([
                 'amenities', 'community', 'accommodations', 'units.amenities', 'units.paymentPlans.milestones',
+                'latestConstructionUpdate',
                 'paymentPlans' => fn($q) => $q->where('is_active', true)->orderBy('id'),
             ])
             ->where('slug', $slug)
@@ -124,12 +125,8 @@ class ProjectController extends Controller
         // Current stage = most recent update's stage
         $currentStage = $updates->first()?->stage;
 
-        // Use the most recent update's progress_percentage; fall back to the project-level field
-        $overallProgress = (int) (
-            $updates->first()?->progress_percentage
-            ?? $project->construction_progress
-            ?? 0
-        );
+        // Use the most recent update's progress_percentage (same source ProjectResource::construction_progress uses)
+        $overallProgress = (int) ($updates->first()?->progress_percentage ?? 0);
 
         return response()->json([
             'success' => true,

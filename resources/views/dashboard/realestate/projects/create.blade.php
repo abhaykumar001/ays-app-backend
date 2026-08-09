@@ -195,13 +195,6 @@
                             <x-input-error :messages="$errors->get('roi')" class="mt-2" />
                         </div>
 
-                        {{-- Construction Progress --}}
-                        <div class="md:col-span-4">
-                            <x-input-label for="construction_progress" :value="__('Construction Progress (%)')" />
-                            <x-text-input id="construction_progress" name="construction_progress" type="number"
-                                class="mt-1 block w-full" :value="old('construction_progress')" />
-                            <x-input-error :messages="$errors->get('construction_progress')" class="mt-2" />
-                        </div>
                         {{-- Bedrooms --}}
                         <div class="md:col-span-4">
                             <x-input-label for="bedrooms" :value="__('Bedrooms (1-4)')" />

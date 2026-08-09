@@ -157,6 +157,15 @@ class Project extends Model implements HasMedia
     {
         return $this->morphMany(ConstructionUpdate::class, 'updatable');
     }
+
+    /** Most recent active construction update — same one the Construction Updates detail page treats as "current". */
+    public function latestConstructionUpdate()
+    {
+        return $this->morphOne(ConstructionUpdate::class, 'updatable')
+            ->where('is_active', true)
+            ->orderByDesc('update_date')
+            ->orderByDesc('sort_order');
+    }
     public function paymentPlans()
     {
         return $this->hasMany(PaymentPlan::class);

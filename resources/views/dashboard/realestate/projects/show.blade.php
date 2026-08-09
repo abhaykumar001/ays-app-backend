@@ -85,10 +85,6 @@
                             <dd class="text-gray-900 dark:text-gray-100">{{ $project->available_units ?? '-' }}</dd>
                         </div>
                         <div>
-                            <dt class="text-gray-500 dark:text-gray-400">Construction Progress</dt>
-                            <dd class="text-gray-900 dark:text-gray-100">{{ $project->construction_progress !== null ? $project->construction_progress . '%' : '-' }}</dd>
-                        </div>
-                        <div>
                             <dt class="text-gray-500 dark:text-gray-400">Bedrooms</dt>
                             <dd class="text-gray-900 dark:text-gray-100">{{ $project->bedrooms ?? '-' }}</dd>
                         </div>
