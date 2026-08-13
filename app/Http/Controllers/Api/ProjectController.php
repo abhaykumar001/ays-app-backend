@@ -34,7 +34,10 @@ class ProjectController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = $this->visibleProjects($request)
-            ->with(['amenities', 'community', 'accommodations', 'latestConstructionUpdate'])
+            ->with([
+                'amenities', 'community', 'accommodations',
+                'constructionUpdates' => fn($q) => $q->where('is_active', true),
+            ])
             ->orderBy('sort_order')
             ->orderByDesc('is_featured');
 
@@ -80,7 +83,7 @@ class ProjectController extends Controller
         $project = $this->visibleProjects($request)
             ->with([
                 'amenities', 'community', 'accommodations', 'units.amenities', 'units.paymentPlans.milestones',
-                'latestConstructionUpdate',
+                'constructionUpdates' => fn($q) => $q->where('is_active', true),
                 'paymentPlans' => fn($q) => $q->where('is_active', true)->orderBy('id'),
             ])
             ->where('slug', $slug)
@@ -109,6 +112,7 @@ class ProjectController extends Controller
             ->firstOrFail();
 
         $updates = $project->constructionUpdates()
+            ->with('stage')
             ->where('is_active', true)
             ->orderByDesc('update_date')
             ->orderByDesc('sort_order')
@@ -123,10 +127,11 @@ class ProjectController extends Controller
         $lastUpdate = $updates->first()?->update_date;
 
         // Current stage = most recent update's stage
-        $currentStage = $updates->first()?->stage;
+        $currentStage = $updates->first()?->stage?->name;
 
-        // Use the most recent update's progress_percentage (same source ProjectResource::construction_progress uses)
-        $overallProgress = (int) ($updates->first()?->progress_percentage ?? 0);
+        // Same computed value ProjectResource::construction_progress uses: an
+        // admin override if set, else the average across each stage's progress.
+        $overallProgress = $project->computedConstructionProgress();
 
         return response()->json([
             'success' => true,

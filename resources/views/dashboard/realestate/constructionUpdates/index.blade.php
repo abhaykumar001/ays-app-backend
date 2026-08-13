@@ -7,7 +7,38 @@
             </x-nav-link>
         </x-slot>
 
-        <div class="py-6">
+        <div class="py-6 space-y-6">
+            @if (session('success'))
+                <div class="p-3 rounded bg-green-50 border border-green-200 text-green-700 text-sm">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <div class="bg-white dark:bg-gray-800 p-6 rounded shadow">
+                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Overall Progress</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                    Auto-calculated as the average progress across the stages below ({{ $autoProgress }}% right now).
+                    Leave the override blank to use that automatically, or set a fixed number to show instead.
+                </p>
+                @can('edit_construction_updates')
+                    <form method="POST" action="{{ route('projects.constructionUpdates.overallProgress', $project) }}" class="flex items-end gap-3">
+                        @csrf
+                        @method('PUT')
+                        <div>
+                            <x-input-label for="overall_progress_override" value="Override (%)" />
+                            <x-text-input id="overall_progress_override" name="overall_progress_override" type="number" min="0" max="100"
+                                class="mt-1 block w-40" placeholder="{{ $autoProgress }} (auto)"
+                                :value="old('overall_progress_override', $project->overall_progress_override)" />
+                        </div>
+                        <x-primary-button>Save</x-primary-button>
+                    </form>
+                @else
+                    <p class="text-sm font-medium">
+                        Currently showing: {{ $project->computedConstructionProgress() }}%
+                    </p>
+                @endcan
+            </div>
+
             <div class="bg-white dark:bg-gray-800 p-6 rounded shadow">
 
                 @can('create_construction_updates')
@@ -35,7 +66,7 @@
                     $columns = collect([
                         ['label' => '#'],
                         ['label' => 'Title', 'key' => 'title'],
-                        ['label' => 'Stage', 'key' => 'stage'],
+                        ['label' => 'Stage', 'key' => 'stage?->name'],
                         ['label' => 'Progress %', 'key' => 'progress_percentage'],
                         ['label' => 'Date', 'key' => 'update_date'],
                         ['label' => 'Media', 'key' => 'media_preview'],
@@ -94,22 +125,23 @@
 
                     <!-- Stage -->
                     <div>
-                        <x-input-label for="stage" :value="'Stage'" />
-                        <select id="stage" name="stage" x-model="form.stage"
+                        <x-input-label for="construction_stage_id" :value="'Stage'" />
+                        <select id="construction_stage_id" name="construction_stage_id" x-model="form.construction_stage_id"
                                 class="mt-1 border-r-8 border-gray-300 dark:border-gray-700 text-sm  w-full  dark:bg-gray-900 dark:text-gray-300 focus:border-primary dark:focus:border-primary focus:ring-primary-light dark:focus:ring-primary-light px-4 py-2 rounded-md shadow-sm">
                             <option value="">Select Stage</option>
-                            <option value="foundation">Foundation</option>
-                            <option value="structure">Structure</option>
-                            <option value="facade">Facade</option>
-                            <option value="interior">Interior</option>
-                            <option value="finishing">Finishing</option>
+                            @foreach ($stages as $s)
+                                <option value="{{ $s->id }}">{{ $s->name }}</option>
+                            @endforeach
                         </select>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Manage the stage list under <a href="{{ route('constructionStages.index') }}" class="underline">Construction Stages</a>.
+                        </p>
                     </div>
 
                     <!-- Progress -->
                     <div>
                         <x-input-label for="progress_percentage" :value="'Progress (%)'" />
-                        <x-text-input id="progress_percentage" name="progress_percentage" type="number" min="0" max="100"
+                        <x-text-input id="progress_percentage" name="progress_percentage" type="number" min="0" max="100" step="0.1"
                                       x-model="form.progress_percentage" class="mt-1 block w-full" />
                     </div>
 
@@ -210,7 +242,7 @@
                     newFilePreviews: [],
                     form: {
                         title: '',
-                        stage: '',
+                        construction_stage_id: '',
                         progress_percentage: '',
                         update_date: '',
                         description: '',

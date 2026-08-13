@@ -21,6 +21,7 @@ class News extends Model implements HasMedia
         'short_description',
         'author',
         'is_featured',
+        'show_on_ays_screen',
         'is_active',
         'published_at',
         'user_id',
@@ -31,6 +32,7 @@ class News extends Model implements HasMedia
     protected $casts = [
         'published_at' => 'date',
         'is_featured'  => 'boolean',
+        'show_on_ays_screen' => 'boolean',
         'is_active'    => 'boolean',
     ];
 

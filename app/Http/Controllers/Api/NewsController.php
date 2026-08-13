@@ -19,6 +19,10 @@ class NewsController extends Controller
             $query->where('is_featured', true);
         }
 
+        if ($request->boolean('show_on_ays')) {
+            $query->where('show_on_ays_screen', true);
+        }
+
         if ($request->filled('search')) {
             $term = $request->search;
             $query->where(function ($q) use ($term) {

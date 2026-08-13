@@ -18,12 +18,16 @@ class ConstructionUpdate extends Model implements HasMedia
         'description',
         'progress_percentage',
         'update_date',
-        'stage',
+        'construction_stage_id',
         'is_public',
         'is_active',
         'created_by',
         'sort_order',
         'link',
+    ];
+
+    protected $casts = [
+        'progress_percentage' => 'float',
     ];
 
     public function registerMediaCollections(): void
@@ -34,6 +38,11 @@ class ConstructionUpdate extends Model implements HasMedia
     public function updatable()
     {
         return $this->morphTo();
+    }
+
+    public function stage()
+    {
+        return $this->belongsTo(ConstructionStage::class, 'construction_stage_id');
     }
 
     // Access first media URL

@@ -13,7 +13,10 @@ class ConstructionUpdateResource extends JsonResource
             'id'          => (string) $this->id,
             'title'       => $this->title,
             'description' => $this->description ?? '',
-            'stage'       => $this->stage,
+            'stage'       => $this->stage?->name,
+            'stage_id'    => $this->construction_stage_id,
+            'stage_sort_order' => $this->stage?->sort_order,
+            'progress_percentage' => $this->progress_percentage,
             'update_date' => $this->update_date
                 ? \Carbon\Carbon::parse($this->update_date)->format('M d, Y')
                 : null,

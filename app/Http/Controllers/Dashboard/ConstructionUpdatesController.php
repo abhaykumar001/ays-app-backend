@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\ConstructionStage;
 use App\Models\ConstructionUpdate;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Unique;
 
 class ConstructionUpdatesController extends Controller
 {
@@ -15,11 +18,45 @@ class ConstructionUpdatesController extends Controller
         $this->middleware('permission:create_construction_updates')->only(['create', 'store']);
         $this->middleware('permission:edit_construction_updates')->only(['edit', 'update', 'destroyMedia']);
         $this->middleware('permission:delete_construction_updates')->only(['destroy']);
+        $this->middleware('permission:edit_construction_updates')->only(['updateOverallProgress']);
     }
     public function index(Project $project)
     {
-        $updates = $project->constructionUpdates()->orderBy('sort_order')->get();
-        return view('dashboard.realestate.constructionUpdates.index', compact('project', 'updates'));
+        $updates = $project->constructionUpdates()->with('stage')->orderBy('sort_order')->get();
+        $stages = ConstructionStage::orderBy('sort_order')->orderBy('name')->get();
+
+        $autoProgress = (int) round(
+            $project->constructionUpdates()
+                ->where('is_active', true)
+                ->whereNotNull('progress_percentage')
+                ->avg('progress_percentage') ?? 0
+        );
+
+        return view('dashboard.realestate.constructionUpdates.index', compact('project', 'updates', 'stages', 'autoProgress'));
+    }
+
+    /** Set or clear the manual override for the project's overall construction progress. */
+    public function updateOverallProgress(Request $request, Project $project)
+    {
+        $request->validate([
+            'overall_progress_override' => 'nullable|integer|min:0|max:100',
+        ]);
+
+        $project->update([
+            'overall_progress_override' => $request->filled('overall_progress_override')
+                ? $request->integer('overall_progress_override')
+                : null,
+        ]);
+
+        return back()->with('success', 'Overall progress updated.');
+    }
+
+    /** Only one update per stage is allowed per project. */
+    private function stageUniqueRule(Project $project, ?int $ignoreId = null): Unique
+    {
+        return Rule::unique('construction_updates', 'construction_stage_id')
+            ->where(fn ($q) => $q->where('updatable_type', Project::class)->where('updatable_id', $project->id))
+            ->ignore($ignoreId);
     }
 
     public function store(Request $request, Project $project)
@@ -27,14 +64,20 @@ class ConstructionUpdatesController extends Controller
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'progress_percentage' => 'nullable|integer|min:0|max:100',
+            'progress_percentage' => 'nullable|numeric|min:0|max:100',
             'update_date' => 'nullable|date',
-            'stage' => 'nullable|in:foundation,structure,facade,interior,finishing',
+            'construction_stage_id' => [
+                'required',
+                'exists:construction_stages,id',
+                $this->stageUniqueRule($project),
+            ],
             'is_public' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
             'files' => 'nullable|array',
             'files.*' => 'file|mimes:jpg,png,jpeg,webp,mp4,zip',
             'link' => 'nullable|url',
+        ], [
+            'construction_stage_id.unique' => 'This project already has an update for that stage. Edit the existing one instead.',
         ]);
 
         $data['is_public'] = $request->boolean('is_public');
@@ -62,14 +105,20 @@ class ConstructionUpdatesController extends Controller
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'progress_percentage' => 'nullable|integer|min:0|max:100',
+            'progress_percentage' => 'nullable|numeric|min:0|max:100',
             'update_date' => 'nullable|date',
-            'stage' => 'nullable|in:foundation,structure,facade,interior,finishing',
+            'construction_stage_id' => [
+                'required',
+                'exists:construction_stages,id',
+                $this->stageUniqueRule($project, $constructionUpdate->id),
+            ],
             'is_public' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
             'files' => 'nullable|array',
             'files.*' => 'file|mimes:jpg,png,jpeg,webp,mp4,zip',
             'link' => 'nullable|url',
+        ], [
+            'construction_stage_id.unique' => 'This project already has an update for that stage. Edit the existing one instead.',
         ]);
 
         $data['is_public'] = $request->boolean('is_public');

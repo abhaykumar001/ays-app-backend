@@ -28,6 +28,7 @@ class NewsController extends Controller
             'author'            => 'nullable|string|max:255',
             'published_at'      => 'nullable|date',
             'is_featured'       => 'nullable|boolean',
+            'show_on_ays_screen' => 'nullable|boolean',
             'is_active'         => 'nullable|boolean',
             'image'             => 'nullable|image|max:5120',
         ]);
@@ -39,6 +40,7 @@ class NewsController extends Controller
         $article->author            = $request->author;
         $article->published_at      = $request->published_at;
         $article->is_featured       = $request->boolean('is_featured');
+        $article->show_on_ays_screen = $request->boolean('show_on_ays_screen');
         $article->is_active         = $request->boolean('is_active', true);
         $article->user_id           = auth()->id();
         $article->save();
@@ -66,6 +68,7 @@ class NewsController extends Controller
             'author'            => 'nullable|string|max:255',
             'published_at'      => 'nullable|date',
             'is_featured'       => 'nullable|boolean',
+            'show_on_ays_screen' => 'nullable|boolean',
             'is_active'         => 'nullable|boolean',
             'image'             => 'nullable|image|max:5120',
         ]);
@@ -76,6 +79,7 @@ class NewsController extends Controller
         $news->author            = $request->author;
         $news->published_at      = $request->published_at;
         $news->is_featured       = $request->boolean('is_featured');
+        $news->show_on_ays_screen = $request->boolean('show_on_ays_screen');
         $news->is_active         = $request->boolean('is_active', true);
         $news->save();
 

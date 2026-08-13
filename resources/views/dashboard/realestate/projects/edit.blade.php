@@ -39,6 +39,15 @@
                             <x-input-error :messages="$errors->get('project_code')" class="mt-2" />
                         </div>
 
+                        {{-- Tagline --}}
+                        <div class="md:col-span-12">
+                            <x-input-label for="tagline" :value="__('Tagline')" />
+                            <x-text-input id="tagline" name="tagline" type="text" class="mt-1 block w-full"
+                                placeholder="e.g. Ultra Exclusive Residences" :value="old('tagline', $project->tagline)" />
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Shown as a badge over the project's hero image in the app. Leave blank to use the default.</p>
+                            <x-input-error :messages="$errors->get('tagline')" class="mt-2" />
+                        </div>
+
                         {{-- Community --}}
                         <div class="md:col-span-4">
                             <x-input-label for="community_id" :value="__('Community')" />
@@ -110,6 +119,14 @@
                             <x-input-label for="is_active" :value="__('Is Active')" />
                             <x-select name="is_active" :options="['true' => 'Active', 'false' => 'Inactive']" :value="old('is_active', $project->is_active ? 'true' : 'false')" />
                             <x-input-error :messages="$errors->get('is_active')" class="mt-2" />
+                        </div>
+                        {{-- Display Order --}}
+                        <div class="md:col-span-4">
+                            <x-input-label for="sort_order" :value="__('Display Order')" />
+                            <x-text-input id="sort_order" name="sort_order" type="number" min="0"
+                                class="mt-1 block w-full" :value="old('sort_order', $project->sort_order)" />
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Lower numbers are shown first on the app's projects screen.</p>
+                            <x-input-error :messages="$errors->get('sort_order')" class="mt-2" />
                         </div>
 
                         {{-- Accommodations --}}
@@ -261,6 +278,15 @@
                             <x-input-error :messages="$errors->get('handover_date')" class="mt-2" />
                         </div>
 
+                        {{-- Cash Buyer Payment Plan --}}
+                        <div class="md:col-span-3">
+                            <x-input-label for="cash_buyer_payment_plan" :value="__('Cash Buyer Payment Plan (e.g. 100%)')" />
+                            <x-text-input id="cash_buyer_payment_plan" name="cash_buyer_payment_plan" type="text"
+                                class="mt-1 block w-full" :value="old('cash_buyer_payment_plan', $project->cash_buyer_payment_plan)" />
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">If filled, this replaces the On/Post Handover Payment tiles in the app with a single "Cash Buyers" tile.</p>
+                            <x-input-error :messages="$errors->get('cash_buyer_payment_plan')" class="mt-2" />
+                        </div>
+
                         {{-- On Handover Payment --}}
                         <div class="md:col-span-3">
                             <x-input-label for="on_handover_payment" :value="__('On Handover Payment (e.g. 60/40)')" />
@@ -275,14 +301,6 @@
                             <x-text-input id="post_handover_payment" name="post_handover_payment" type="text"
                                 class="mt-1 block w-full" :value="old('post_handover_payment', $project->post_handover_payment)" />
                             <x-input-error :messages="$errors->get('post_handover_payment')" class="mt-2" />
-                        </div>
-
-                        {{-- Sort Order --}}
-                        <div class="md:col-span-3">
-                            <x-input-label for="sort_order" :value="__('Order')" />
-                            <x-text-input id="sort_order" name="sort_order" type="number"
-                                class="mt-1 block w-full" :value="old('sort_order', $project->sort_order)" />
-                            <x-input-error :messages="$errors->get('sort_order')" class="mt-2" />
                         </div>
 
                         {{-- Location Map --}}
@@ -315,6 +333,16 @@
                                 {{ old('description', $project->description) }}
                             </x-text-textarea>
                             <x-input-error :messages="$errors->get('description')" class="mt-2" />
+                        </div>
+
+                        {{-- Shared Description --}}
+                        <div class="md:col-span-12">
+                            <x-input-label for="shared_description" :value="__('Shared Description (used when an agent shares this project)')" />
+                            <x-text-textarea id="shared_description" name="shared_description" class="mt-1 block w-full">
+                                {{ old('shared_description', $project->shared_description) }}
+                            </x-text-textarea>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Leave blank to fall back to the Full Description above when sharing.</p>
+                            <x-input-error :messages="$errors->get('shared_description')" class="mt-2" />
                         </div>
 
                         {{-- Title Description (project detail page tagline) --}}

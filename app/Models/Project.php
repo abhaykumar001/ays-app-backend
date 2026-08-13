@@ -17,6 +17,7 @@ class Project extends Model implements HasMedia
 
     protected $fillable = [
         'name',
+        'tagline',
         'slug',
         'project_code',
         'project_status',
@@ -33,6 +34,7 @@ class Project extends Model implements HasMedia
         'total_units',
         'available_units',
         'construction_progress',
+        'overall_progress_override',
         'roi',
         'ownership_type',
         'bedrooms',
@@ -44,6 +46,8 @@ class Project extends Model implements HasMedia
         'handover_date',
         'on_handover_payment',
         'post_handover_payment',
+        'cash_buyer_payment_plan',
+        'shared_description',
         'short_description',
         'title_description',
         'quote_description',
@@ -165,6 +169,32 @@ class Project extends Model implements HasMedia
             ->where('is_active', true)
             ->orderByDesc('update_date')
             ->orderByDesc('sort_order');
+    }
+
+    /**
+     * Overall construction progress: an admin-entered override if set,
+     * otherwise the average progress across each stage's active update
+     * (one update per stage, so this is effectively "how far along, across
+     * all tracked stages, is this project on average").
+     */
+    public function computedConstructionProgress(): int
+    {
+        if ($this->overall_progress_override !== null) {
+            return (int) $this->overall_progress_override;
+        }
+
+        // Use the already-loaded relation collection when eager-loaded
+        // (ProjectController::index()/show()) to avoid an N+1 query.
+        $progresses = $this->constructionUpdates
+            ->where('is_active', true)
+            ->whereNotNull('progress_percentage')
+            ->pluck('progress_percentage');
+
+        if ($progresses->isEmpty()) {
+            return 0;
+        }
+
+        return (int) round($progresses->avg());
     }
     public function paymentPlans()
     {

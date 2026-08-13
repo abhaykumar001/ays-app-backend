@@ -12,6 +12,7 @@ use App\Http\Controllers\Dashboard\BookingPaymentsController;
 use App\Http\Controllers\Dashboard\BookingsController;
 use App\Http\Controllers\Dashboard\BuyersController;
 use App\Http\Controllers\Dashboard\CommunitiesController;
+use App\Http\Controllers\Dashboard\ConstructionStagesController;
 use App\Http\Controllers\Dashboard\ConstructionUpdatesController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\EnquiriesController;
@@ -85,7 +86,12 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
     Route::prefix('projects/{project}')->name('projects.')->group(function () {
         Route::resource('constructionUpdates', ConstructionUpdatesController::class);
         Route::delete('constructionUpdates/{constructionUpdate}/media/{media}', [ConstructionUpdatesController::class, 'destroyMedia'])->name('constructionUpdates.media.destroy');
+        Route::put('constructionUpdates-overallProgress', [ConstructionUpdatesController::class, 'updateOverallProgress'])->name('constructionUpdates.overallProgress');
     });
+    Route::get('constructionStages', [ConstructionStagesController::class, 'index'])->name('constructionStages.index');
+    Route::post('constructionStages', [ConstructionStagesController::class, 'store'])->name('constructionStages.store');
+    Route::put('constructionStages/{constructionStage}', [ConstructionStagesController::class, 'update'])->name('constructionStages.update');
+    Route::delete('constructionStages/{constructionStage}', [ConstructionStagesController::class, 'destroy'])->name('constructionStages.destroy');
     Route::prefix('projects/{project}')->name('projects.')->group(function () { Route::resource('projectOffers', ProjectOffersController::class); });
     Route::resource('amenities', AmenitiesController::class);
     Route::resource('communities', CommunitiesController::class);

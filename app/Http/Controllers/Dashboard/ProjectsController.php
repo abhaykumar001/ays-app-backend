@@ -37,6 +37,7 @@ class ProjectsController extends Controller
     {
         $request->validate([
             'name'                  => 'required|string|max:255',
+            'tagline'               => 'nullable|string|max:255',
             'community_id'          => 'required|exists:communities,id',
             'project_status'        => 'required|in:off_plan,ready,under_construction',
             'sales_status'          => 'required|in:available,sold_out,coming_soon',
@@ -54,6 +55,7 @@ class ProjectsController extends Controller
             'handover_date'         => 'nullable|date',
             'on_handover_payment'   => 'nullable|string|max:50',
             'post_handover_payment' => 'nullable|string|max:50',
+            'cash_buyer_payment_plan' => 'nullable|string|max:50',
             'latitude'              => 'nullable|numeric|between:-90,90',
             'longitude'             => 'nullable|numeric|between:-180,180',
             'image'                 => 'nullable|image|max:5120',
@@ -66,6 +68,7 @@ class ProjectsController extends Controller
             'virtual_tour_url'      => 'nullable|url|max:2048',
             'title_description'     => 'nullable|string',
             'quote_description'     => 'nullable|string',
+            'shared_description'    => 'nullable|string',
             'materiality_title'     => 'nullable|string|max:255',
             'materiality_description' => 'nullable|string',
             'materiality_images'    => 'nullable|array|max:5',
@@ -77,6 +80,7 @@ class ProjectsController extends Controller
 
         $project = Project::create([
             'name'                  => $request->name,
+            'tagline'               => $request->tagline ?: null,
             'project_code'          => $request->project_code ?: null,
             'community_id'          => $request->community_id,
             'sub_community'         => $request->sub_community ?: null,
@@ -102,6 +106,7 @@ class ProjectsController extends Controller
             'handover_date'         => $request->handover_date ?: null,
             'on_handover_payment'   => $request->on_handover_payment ?: null,
             'post_handover_payment' => $request->post_handover_payment ?: null,
+            'cash_buyer_payment_plan' => $request->cash_buyer_payment_plan ?: null,
             'sort_order'            => $request->sort_order !== '' ? $request->sort_order : 0,
             'address'               => $request->address ?: null,
             'latitude'              => $request->latitude !== '' && $request->latitude != 0 ? $request->latitude : null,
@@ -112,6 +117,7 @@ class ProjectsController extends Controller
             'materiality_title'     => $request->materiality_title ?: null,
             'materiality_description' => $request->materiality_description ?: null,
             'description'           => $request->description ?: null,
+            'shared_description'    => $request->shared_description ?: null,
             'virtual_tour_url'      => $request->virtual_tour_url ?: null,
             'meta_title'            => $request->meta_title ?: null,
             'meta_keywords'         => $request->meta_keywords ?: null,
@@ -206,6 +212,7 @@ class ProjectsController extends Controller
 
         $request->validate([
             'name'                  => 'required|string|max:255',
+            'tagline'               => 'nullable|string|max:255',
             'community_id'          => 'required|exists:communities,id',
             'project_status'        => 'required|in:off_plan,ready,under_construction',
             'sales_status'          => 'required|in:available,sold_out,coming_soon',
@@ -223,6 +230,7 @@ class ProjectsController extends Controller
             'handover_date'         => 'nullable|date',
             'on_handover_payment'   => 'nullable|string|max:50',
             'post_handover_payment' => 'nullable|string|max:50',
+            'cash_buyer_payment_plan' => 'nullable|string|max:50',
             'latitude'              => 'nullable|numeric|between:-90,90',
             'longitude'             => 'nullable|numeric|between:-180,180',
             'image'                 => 'nullable|image|max:5120',
@@ -235,6 +243,7 @@ class ProjectsController extends Controller
             'virtual_tour_url'      => 'nullable|url|max:2048',
             'title_description'     => 'nullable|string',
             'quote_description'     => 'nullable|string',
+            'shared_description'    => 'nullable|string',
             'materiality_title'     => 'nullable|string|max:255',
             'materiality_description' => 'nullable|string',
             'materiality_images'    => 'nullable|array|max:5',
@@ -246,6 +255,7 @@ class ProjectsController extends Controller
 
         $project->update([
             'name'                  => $request->name,
+            'tagline'               => $request->tagline ?: null,
             'project_code'          => $request->project_code ?: null,
             'community_id'          => $request->community_id,
             'sub_community'         => $request->sub_community ?: null,
@@ -271,6 +281,7 @@ class ProjectsController extends Controller
             'handover_date'         => $request->handover_date ?: null,
             'on_handover_payment'   => $request->on_handover_payment ?: null,
             'post_handover_payment' => $request->post_handover_payment ?: null,
+            'cash_buyer_payment_plan' => $request->cash_buyer_payment_plan ?: null,
             'sort_order'            => $request->sort_order !== '' ? $request->sort_order : 0,
             'address'               => $request->address ?: null,
             'latitude'              => $request->latitude !== '' && $request->latitude != 0 ? $request->latitude : null,
@@ -281,6 +292,7 @@ class ProjectsController extends Controller
             'materiality_title'     => $request->materiality_title ?: null,
             'materiality_description' => $request->materiality_description ?: null,
             'description'           => $request->description ?: null,
+            'shared_description'    => $request->shared_description ?: null,
             'virtual_tour_url'      => $request->virtual_tour_url ?: null,
             'meta_title'            => $request->meta_title ?: null,
             'meta_keywords'         => $request->meta_keywords ?: null,

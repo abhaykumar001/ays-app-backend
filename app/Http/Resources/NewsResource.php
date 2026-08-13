@@ -21,6 +21,7 @@ class NewsResource extends JsonResource
             'author'            => $this->author,
             'thumbnail_url'     => $thumbnail,
             'is_featured'       => (bool) $this->is_featured,
+            'show_on_ays_screen' => (bool) $this->show_on_ays_screen,
             'published_at'      => $this->published_at?->format('M d, Y'),
         ];
     }

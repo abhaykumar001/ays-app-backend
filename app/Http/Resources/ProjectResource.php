@@ -45,11 +45,13 @@ class ProjectResource extends JsonResource
             'id'                => (string) $this->id,
             'slug'              => $this->slug,
             'name'              => $this->name,
+            'tagline'           => $this->tagline ?: null,
             'location'          => $this->community?->name ?? $this->city ?? 'Dubai',
             'short_description' => $this->short_description ?? '',
             'title_description' => $this->title_description ?? '',
             'quote_description' => $this->quote_description ?? '',
             'full_description'  => $this->description ?? $this->short_description ?? '',
+            'shared_description' => $this->shared_description ?: null,
             'thumbnail_url'     => $thumbnail,
             'gallery_images'    => $gallery,
             'materiality_title'       => $this->materiality_title ?? '',
@@ -59,7 +61,7 @@ class ProjectResource extends JsonResource
             'status'            => $statusMap[$this->project_status] ?? 'ready',
             // Sourced from the most recent Construction Update entry (dashboard: Projects > Construction Updates),
             // so this always matches what the construction-update detail screen shows.
-            'construction_progress' => (int) ($this->latestConstructionUpdate?->progress_percentage ?? 0),
+            'construction_progress' => $this->computedConstructionProgress(),
             'is_featured'       => (bool) $this->is_featured,
             'is_hot_selling'    => (bool) $this->is_hot_selling,
             'bedrooms_range'    => $this->bedrooms,
@@ -77,6 +79,7 @@ class ProjectResource extends JsonResource
             'handover'          => $this->handover ?? null,
             'on_handover_payment'   => $this->on_handover_payment ?: null,
             'post_handover_payment' => $this->post_handover_payment ?: null,
+            'cash_buyer_payment_plan' => $this->cash_buyer_payment_plan ?: null,
             'amenities'         => AmenityResource::collection(
                 $this->whenLoaded('amenities', fn() => $this->amenities, collect())
             ),

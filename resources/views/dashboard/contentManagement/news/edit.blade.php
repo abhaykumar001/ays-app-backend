@@ -64,6 +64,14 @@
                             <x-input-error :messages="$errors->get('is_featured')" class="mt-2" />
                         </div>
 
+                        <div class="md:col-span-4">
+                            <x-input-label for="show_on_ays_screen" :value="__('Show on AYS Screen')" />
+                            <x-select name="show_on_ays_screen" :options="['1' => 'Yes', '0' => 'No']"
+                                :value="old('show_on_ays_screen', $news->show_on_ays_screen ? '1' : '0')" />
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">The most recent article marked Yes is what shows on the app's AYS home screen.</p>
+                            <x-input-error :messages="$errors->get('show_on_ays_screen')" class="mt-2" />
+                        </div>
+
                         <div class="md:col-span-6">
                             <x-input-label for="is_active" :value="__('Status')" />
                             <x-select name="is_active" :options="['1' => 'Active (visible in app)', '0' => 'Inactive (hidden)']"

@@ -37,6 +37,7 @@ return [
             // [ 'title' => 'Payment Plans', 'icon' => 'bi bi-credit-card-2-front', 'route' => 'paymentPlans.index', 'permission' => 'view_payment_plans' ],
             [ 'title' => 'Community/ Master Plan', 'icon' => 'bi bi-buildings', 'route' => 'communities.index', 'permission' => 'view_communities' ],
             [ 'title' => 'Accommodation', 'icon' => 'bi bi-alt', 'route' => 'accommodations.index', 'permission' => 'view_accommodations' ],
+            [ 'title' => 'Construction Stages', 'icon' => 'bi bi-bar-chart-steps', 'route' => 'constructionStages.index', 'permission' => 'view_construction_updates' ],
         ],
     ],
 
