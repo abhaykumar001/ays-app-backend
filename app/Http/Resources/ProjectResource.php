@@ -47,6 +47,8 @@ class ProjectResource extends JsonResource
             'name'              => $this->name,
             'tagline'           => $this->tagline ?: null,
             'location'          => $this->community?->name ?? $this->city ?? 'Dubai',
+            'latitude'          => $this->hasCoordinates() ? (float) $this->latitude : null,
+            'longitude'         => $this->hasCoordinates() ? (float) $this->longitude : null,
             'short_description' => $this->short_description ?? '',
             'title_description' => $this->title_description ?? '',
             'quote_description' => $this->quote_description ?? '',
@@ -90,6 +92,14 @@ class ProjectResource extends JsonResource
                 $this->community ? new CommunityResource($this->community) : null
             ),
         ];
+    }
+
+    /** The admin form saves 0/0 as the hidden-field default when no pin has been dropped. */
+    private function hasCoordinates(): bool
+    {
+        return $this->latitude !== null
+            && $this->longitude !== null
+            && ! ((float) $this->latitude === 0.0 && (float) $this->longitude === 0.0);
     }
 
     private function formattedStartingPrice(): string
