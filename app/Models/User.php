@@ -54,4 +54,20 @@ class User extends Authenticatable
     {
         return $this->morphToMany(Role::class, 'model', 'model_has_roles');
     }
+
+    public function deviceTokens()
+    {
+        return $this->hasMany(DeviceToken::class);
+    }
+
+    /**
+     * Named distinctly from the Notifiable trait's own notifications()
+     * relation (which points at Laravel's built-in DatabaseNotification /
+     * uuid-keyed notifications shape — unused in this app) to avoid any
+     * ambiguity with this app's custom Notification model/table.
+     */
+    public function appNotifications()
+    {
+        return $this->morphMany(Notification::class, 'notifiable')->latest();
+    }
 }

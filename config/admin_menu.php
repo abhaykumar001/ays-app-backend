@@ -57,16 +57,16 @@ return [
     // ],
 
     // Bookings
-    [
-        'title' => 'Bookings',
-        'icon' => 'bi bi-journal-bookmark',
-        'permissions' => ['view_reservations', 'view_payments', 'view_cancellations'],
-        'children' => [
-            ['title' => 'Reservations', 'route' => 'reservations.index', 'icon' => 'bi bi-card-checklist', 'permission' => 'view_reservations'],
-            ['title' => 'Payments', 'route' => 'bookings.payments', 'icon' => 'bi bi-wallet', 'permission' => 'view_payments'],
-            ['title' => 'Cancel / Release Units', 'route' => 'cancellations.index', 'icon' => 'bi bi-x-circle', 'permission' => 'view_cancellations'],
-        ],
-    ],
+    // [
+    //     'title' => 'Bookings',
+    //     'icon' => 'bi bi-journal-bookmark',
+    //     'permissions' => ['view_reservations', 'view_payments', 'view_cancellations'],
+    //     'children' => [
+    //         ['title' => 'Reservations', 'route' => 'reservations.index', 'icon' => 'bi bi-card-checklist', 'permission' => 'view_reservations'],
+    //         ['title' => 'Payments', 'route' => 'bookings.payments', 'icon' => 'bi bi-wallet', 'permission' => 'view_payments'],
+    //         ['title' => 'Cancel / Release Units', 'route' => 'cancellations.index', 'icon' => 'bi bi-x-circle', 'permission' => 'view_cancellations'],
+    //     ],
+    // ],
 
     // Events
     [
@@ -91,19 +91,19 @@ return [
     ],
 
     // Agents
-    [
-        'title' => 'Agents',
-        'icon' => 'bi bi-person-bounding-box',
-        'route' => 'agents.index',
-        'permission' => 'view_agents',
-    ],
+    // [
+    //     'title' => 'Agents',
+    //     'icon' => 'bi bi-person-bounding-box',
+    //     'route' => 'agents.index',
+    //     'permission' => 'view_agents',
+    // ],
     // Buyers
-    [
-        'title' => 'Buyers',
-        'icon' => 'bi bi-people-fill',
-        'route' => 'buyers.index',
-        'permission' => 'view_buyers',
-    ],
+    // [
+    //     'title' => 'Buyers',
+    //     'icon' => 'bi bi-people-fill',
+    //     'route' => 'buyers.index',
+    //     'permission' => 'view_buyers',
+    // ],
     // Construction Updates
     // [
     //     'title' => 'Construction Updates',
@@ -125,16 +125,15 @@ return [
             ['title' => 'Tags', 'route' => 'tags.index', 'icon' => 'bi bi-tags', 'permission' => 'view_tags'],
             ['title' => 'Blogs', 'route' => 'blogs.index', 'icon' => 'bi bi-journal-text', 'permission' => 'view_blogs'],
             ['title' => 'Market Insights', 'route' => 'marketInsights.index', 'icon' => 'bi bi-newspaper', 'permission' => 'view_market_insights'],
-            ['title' => 'Announcements', 'route' => 'announcements.index', 'icon' => 'bi bi-megaphone', 'permission' => 'view_announcements'],
             ['title' => 'Offers', 'route' => 'offers.index', 'icon' => 'bi bi-broadcast', 'permission' => 'view_offers'],
             ['title' => 'Design Philosophy', 'route' => 'design-philosophy.edit', 'icon' => 'bi bi-brush', 'permission' => 'view_design_philosophy'],
         ],
     ],
-    // Notifications / Alerts
+    // Notifications / Alerts (push, role-targeted, optionally scheduled)
     [
         'title' => 'Notifications',
         'icon' => 'bi bi-bell-fill',
-        'permissions' => ['view_notifications', 'create_notifications', 'manage_notification_settings'],
+        'permissions' => ['view_notifications', 'create_notifications'],
         'children' => [
             [
                 'title' => 'All Notifications',
@@ -148,27 +147,21 @@ return [
                 'icon' => 'bi bi-bell-plus',
                 'permission' => 'create_notifications',
             ],
-            [
-                'title' => 'Notification Settings',
-                'route' => 'settings.index',
-                'icon' => 'bi bi-gear',
-                'permission' => 'manage_notification_settings',
-            ],
         ],
     ],
     // Property Management
-    [
-        'title' => 'Property Management',
-        'icon' => 'bi bi-kanban',
-        'permissions' => ['view_maintanance', 'view_owners', 'view_payments', 'view_payment_schedules', 'view_maintanance_requests'],
-        'children' => [
-            ['title' => 'Maintanance', 'route' => 'maintanance.index', 'icon' => 'bi bi-house-gear-fill', 'permission' => 'view_maintanance'],
-            ['title' => 'Owners', 'route' => 'owners.index', 'icon' => 'bi bi-person-rolodex', 'permission' => 'view_owners'],
-            ['title' => 'Payments', 'route' => 'payments.index', 'icon' => 'bi bi-wallet', 'permission' => 'view_payments'],
-            ['title' => 'Payment Schedules', 'route' => 'paymentSchedules.index', 'icon' => 'bi bi-credit-card', 'permission' => 'view_payment_schedules'],
-            ['title' => 'Maintanance Requests', 'route' => 'maintananceRequests.index', 'icon' => 'bi bi-person-fill-gear', 'permission' => 'view_maintanance_requests'],
-        ],
-    ],
+    // [
+    //     'title' => 'Property Management',
+    //     'icon' => 'bi bi-kanban',
+    //     'permissions' => ['view_maintanance', 'view_owners', 'view_payments', 'view_payment_schedules', 'view_maintanance_requests'],
+    //     'children' => [
+    //         ['title' => 'Maintanance', 'route' => 'maintanance.index', 'icon' => 'bi bi-house-gear-fill', 'permission' => 'view_maintanance'],
+    //         ['title' => 'Owners', 'route' => 'owners.index', 'icon' => 'bi bi-person-rolodex', 'permission' => 'view_owners'],
+    //         ['title' => 'Payments', 'route' => 'payments.index', 'icon' => 'bi bi-wallet', 'permission' => 'view_payments'],
+    //         ['title' => 'Payment Schedules', 'route' => 'paymentSchedules.index', 'icon' => 'bi bi-credit-card', 'permission' => 'view_payment_schedules'],
+    //         ['title' => 'Maintanance Requests', 'route' => 'maintananceRequests.index', 'icon' => 'bi bi-person-fill-gear', 'permission' => 'view_maintanance_requests'],
+    //     ],
+    // ],
 
     [
         'title' => 'Users & Roles',
@@ -197,20 +190,20 @@ return [
     ],
 
     // Audit Logs
-    [
-        'title' => 'Audit Logs',
-        'icon' => 'bi bi-clock-history',
-        'route' => 'auditLogs.index',
-        'permission' => 'view_audit_logs',
-    ],
+    // [
+    //     'title' => 'Audit Logs',
+    //     'icon' => 'bi bi-clock-history',
+    //     'route' => 'auditLogs.index',
+    //     'permission' => 'view_audit_logs',
+    // ],
 
     // SEO Meta Data
-    [
-        'title' => 'SEO Meta Data',
-        'icon' => 'bi bi-activity',
-        'route' => 'seoData.index',
-        'permission' => 'view_seo_data',
-    ],
+    // [
+    //     'title' => 'SEO Meta Data',
+    //     'icon' => 'bi bi-activity',
+    //     'route' => 'seoData.index',
+    //     'permission' => 'view_seo_data',
+    // ],
 
     // Profile
     [

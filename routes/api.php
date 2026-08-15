@@ -5,8 +5,10 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DesignPhilosophyController;
 use App\Http\Controllers\Api\CommunityController;
 use App\Http\Controllers\Api\ContentController;
+use App\Http\Controllers\Api\DeviceTokenController;
 use App\Http\Controllers\Api\KioskController;
 use App\Http\Controllers\Api\NewsController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OfferController;
 use App\Http\Controllers\Api\EnquiryController;
 use App\Http\Controllers\Api\EventController;
@@ -76,6 +78,9 @@ Route::prefix('v1')->group(function () {
     Route::post('enquiries', [EnquiryController::class, 'store']);
     Route::post('viewings',  [ViewingController::class, 'store']);
 
+    // ── Device tokens (public — a token can be registered before login) ────
+    Route::post('device-tokens', [DeviceTokenController::class, 'store']);
+
     // ── Protected (requires Sanctum token) ────────────────────────────────
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('auth/logout',   [AuthController::class, 'logout']);
@@ -85,5 +90,13 @@ Route::prefix('v1')->group(function () {
 
         // Announcements for logged-in users (includes user-targeted ones)
         Route::get('announcements/user', [ContentController::class, 'announcements']);
+
+        // Push notifications (bell icon list) + per-category preferences
+        Route::get('notifications',                 [NotificationController::class, 'index']);
+        Route::get('notifications/unread-count',    [NotificationController::class, 'unreadCount']);
+        Route::post('notifications/read-all',       [NotificationController::class, 'markAllRead']);
+        Route::post('notifications/{notification}/read', [NotificationController::class, 'markRead']);
+        Route::get('notification-settings',         [NotificationController::class, 'settings']);
+        Route::put('notification-settings',         [NotificationController::class, 'updateSettings']);
     });
 });

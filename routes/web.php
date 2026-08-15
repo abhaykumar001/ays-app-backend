@@ -25,7 +25,6 @@ use App\Http\Controllers\Dashboard\MaintananceRequestsController;
 use App\Http\Controllers\Dashboard\MarketInsightsController;
 use App\Http\Controllers\Dashboard\NearbyPlacesController;
 use App\Http\Controllers\Dashboard\NotificationsController;
-use App\Http\Controllers\Dashboard\NotificationSettingsController;
 use App\Http\Controllers\Dashboard\OffersController;
 use App\Http\Controllers\Dashboard\OwnersController;
 use App\Http\Controllers\Dashboard\PaymentPlansController;
@@ -136,9 +135,9 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
     Route::resource('announcements', AnnouncementsController::class);
     Route::resource('offers', OffersController::class);
 
-    // Notifications
-    Route::resource('notifications', NotificationsController::class);
-    Route::resource('notifications/settings', NotificationSettingsController::class);
+    // Notifications (push, role-targeted, optionally scheduled)
+    Route::resource('notifications', NotificationsController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
+    Route::post('notifications/send-test', [NotificationsController::class, 'sendTest'])->name('notifications.sendTest');
 
     // Property Management
     Route::resource('maintanance', MaintananceController::class);
