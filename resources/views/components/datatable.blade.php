@@ -108,6 +108,19 @@
                                                     {{ $isActive ? 'Deactivate' : 'Activate' }}
                                                 </button>
                                             </form>
+                                        @elseif($action['type'] === 'approve')
+                                            @if (! data_get($item, $action['statusKey'] ?? 'is_approved'))
+                                                <form method="POST"
+                                                    action="{{ route($action['url'], array_merge($action['params'] ?? [], [$item['id']])) }}"
+                                                    class="inline-block mr-2"
+                                                    onsubmit="return confirm('Approve this account and send them the activation email?')">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" class="text-green-500 hover:underline">
+                                                        <i class="bi bi-patch-check"></i> {{ $label }}
+                                                    </button>
+                                                </form>
+                                            @endif
                                         @elseif($action['type'] === 'phase')
                                             <a href="{{ route($routeName, $item['id']) }}"
                                                 class="text-yellow-500 hover:underline mr-2">
@@ -185,6 +198,7 @@
                 document.querySelectorAll('[id^="datatable"]').forEach(table => {
                     const dt = new DataTable(`#${table.id}`, {
                         searchable: true,
+                        sortable: true,
                         perPageSelect: [5, 10, 20, 50, 100, 500, 1000],
                         perPage: 10,
                         labels: {

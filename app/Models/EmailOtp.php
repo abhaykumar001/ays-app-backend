@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class EmailOtp extends Model
 {
-    protected $fillable = ['email', 'name', 'plain_password', 'otp', 'expires_at'];
+    protected $fillable = ['email', 'name', 'phone', 'plain_password', 'role', 'otp', 'expires_at'];
 
     protected $casts = ['expires_at' => 'datetime'];
 

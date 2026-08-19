@@ -61,6 +61,7 @@ class ProjectResource extends JsonResource
             'materiality_images'      => $materialityImages,
             'starting_price'    => $this->formattedStartingPrice(),
             'status'            => $statusMap[$this->project_status] ?? 'ready',
+            'sales_status'      => $this->sales_status ?? 'available',
             // Sourced from the most recent Construction Update entry (dashboard: Projects > Construction Updates),
             // so this always matches what the construction-update detail screen shows.
             'construction_progress' => $this->computedConstructionProgress(),

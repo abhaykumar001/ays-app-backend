@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\UserRequest;
+use App\Mail\AccountActivatedMail;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -13,18 +16,31 @@ class UserController extends Controller
     {
         $this->middleware('permission:view_user')->only(['index', 'show']);
         $this->middleware('permission:create_user')->only(['create', 'store']);
-        $this->middleware('permission:edit_user')->only(['edit', 'update', 'toggleStatus']);
+        $this->middleware('permission:edit_user')->only(['edit', 'update', 'toggleStatus', 'approve']);
         $this->middleware('permission:delete_user')->only(['destroy']);
     }
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('roles')->whereDoesntHave('roles', function ($query) {
+        $query = User::with('roles')->whereDoesntHave('roles', function ($query) {
             $query->where('name', 'Super Admin');
-        })->get();
-        return view('dashboard.users.index', compact('users'));
+        });
+
+        if ($request->query('status') === 'pending') {
+            $query->pendingApproval();
+        }
+
+        if ($request->filled('role')) {
+            $query->role($request->query('role'));
+        }
+
+        $users = $query->latest()->get();
+        $pendingCount = User::pendingApproval()->count();
+        $roles = Role::where('name', '!=', 'Super Admin')->orderBy('name')->get();
+
+        return view('dashboard.users.index', compact('users', 'pendingCount', 'roles'));
     }
 
     /**
@@ -136,5 +152,24 @@ class UserController extends Controller
         $status = $user->is_active ? 'activated' : 'deactivated';
 
         return redirect()->back()->with('status', 'success')->with('message', "User {$status} successfully.");
+    }
+
+    /**
+     * Approve a pending broker (External Agent) account: activates login and
+     * emails them the activation notice. No-op if already approved.
+     */
+    public function approve(string $id)
+    {
+        $user = User::findOrFail($id);
+
+        if (! $user->is_approved) {
+            $user->is_approved = true;
+            $user->approved_at = now();
+            $user->save();
+
+            Mail::to($user->email)->send(new AccountActivatedMail($user->name));
+        }
+
+        return redirect()->back()->with('status', 'success')->with('message', 'User approved and activation email sent.');
     }
 }

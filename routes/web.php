@@ -159,6 +159,7 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
     Route::put('personal-info-update', [WebsiteSettingController::class, 'personalInfoUpdate'])->name('personal.info.update');
     Route::resource('user', UserController::class);
     Route::patch('user/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('user.toggleStatus');
+    Route::patch('user/{id}/approve', [UserController::class, 'approve'])->name('user.approve');
     Route::resource('seoData', SeoDataController::class);
     Route::resource('permission', PermissionController::class);
     Route::resource('roles', RoleController::class);

@@ -13,22 +13,25 @@ use Illuminate\Http\Request;
 class ProjectController extends Controller
 {
     /**
-     * Agents see both active and inactive projects; everyone else
-     * (guests, Client, Owner) only sees active projects.
+     * Internal and External agents see both active and inactive projects;
+     * everyone else (guests, Client, Owner) only sees active projects.
      */
     private function visibleProjects(Request $request)
     {
         $role = $request->user('sanctum')?->getRoleNames()->first();
 
-        return $role === 'Agent' ? Project::query() : Project::active();
+        return in_array($role, ['Internal Agent', 'External Agent'], true)
+            ? Project::query()
+            : Project::active();
     }
 
     /**
      * List all active projects.
      *
      * Query params:
-     *   status  = ready | off_plan | under_construction
-     *   search  = string (matches name or city)
+     *   status       = ready | off_plan | under_construction
+     *   sales_status = available | sold_out | coming_soon
+     *   search       = string (matches name or city)
      *   per_page = int (default 20)
      */
     public function index(Request $request): JsonResponse
@@ -49,6 +52,11 @@ class ProjectController extends Controller
         // Filter by status
         if ($request->filled('status')) {
             $query->where('project_status', $request->status);
+        }
+
+        // Filter by sales status
+        if ($request->filled('sales_status')) {
+            $query->where('sales_status', $request->sales_status);
         }
 
         // Search by name or city

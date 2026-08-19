@@ -48,11 +48,39 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'is_approved' => 'boolean',
+            'approved_at' => 'datetime',
         ];
     }
+
+    protected $appends = ['approval_status', 'registered_at'];
+
     public function roles()
     {
         return $this->morphToMany(Role::class, 'model', 'model_has_roles');
+    }
+
+    public function scopePendingApproval($query)
+    {
+        return $query->where('is_approved', false);
+    }
+
+    /**
+     * Drives the dashboard Users list Status badge: distinguishes a broker
+     * awaiting admin approval from the plain active/deactivated states.
+     */
+    public function getApprovalStatusAttribute(): string
+    {
+        if (! $this->is_approved) {
+            return 'pending';
+        }
+
+        return $this->is_active ? 'active' : 'deactivated';
+    }
+
+    public function getRegisteredAtAttribute(): ?string
+    {
+        return $this->created_at?->format('M d, Y');
     }
 
     public function deviceTokens()

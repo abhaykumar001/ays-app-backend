@@ -23,7 +23,9 @@ class AuthController extends Controller
         $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
+            'phone'    => 'required|string|max:20',
             'password' => 'required|string|min:8|confirmed',
+            'role'     => 'nullable|string|in:Client,External Agent',
         ]);
 
         $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -32,7 +34,9 @@ class AuthController extends Controller
             ['email' => $request->email],
             [
                 'name'           => $request->name,
+                'phone'          => $request->phone,
                 'plain_password' => $request->password,
+                'role'           => $request->role ?? 'Client',
                 'otp'            => $otp,
                 'expires_at'     => now()->addMinutes(10),
             ]
@@ -81,17 +85,39 @@ class AuthController extends Controller
             ], 422);
         }
 
+        $role = $record->role ?: 'Client';
+
         $user = User::create([
             'name'     => $record->name,
             'email'    => $record->email,
+            'phone'    => $record->phone,
             'password' => $record->plain_password,
         ]);
 
         $user->email_verified_at = now();
-        $user->save();
 
-        $user->assignRole('Client');
+        // External agents (brokers) self-registering from the app start out
+        // unapproved and can't log in until an admin approves them from the
+        // dashboard — see AuthController::login() and
+        // Dashboard\UserController::approve().
+        if ($role === 'External Agent') {
+            $user->is_approved = false;
+        }
+
+        $user->save();
+        $user->assignRole($role);
         $record->delete();
+
+        if ($role === 'External Agent') {
+            return response()->json([
+                'success' => true,
+                'message' => 'Your account has been registered successfully.',
+                'data'    => [
+                    'pending_approval' => true,
+                    'user'             => new UserResource($user),
+                ],
+            ], 201);
+        }
 
         $token = $user->createToken('mobile')->plainTextToken;
 
@@ -158,6 +184,13 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => "Your account was deleted. If you think this was a mistake, please write to us at support@aysdevelopers.ae and we'll get in touch with you shortly.",
+            ], 403);
+        }
+
+        if (! $user->is_approved) {
+            return response()->json([
+                'success' => false,
+                'message' => "Your account is pending approval. We'll send you a confirmation email within 24 hours once it's activated — you can then log in with these same credentials.",
             ], 403);
         }
 

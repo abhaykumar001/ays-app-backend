@@ -10,9 +10,20 @@ class RoleSeeder extends Seeder
 {
     public function run(): void
     {
+        // Rename the legacy 'Agent' role to 'Internal Agent' in place, so
+        // existing user role assignments carry over unchanged. Safe to run
+        // repeatedly (and on already-migrated databases) — once renamed,
+        // 'Agent' no longer exists and this is a no-op on later runs.
+        $legacyAgent = Role::where('name', 'Agent')->where('guard_name', 'web')->first();
+        if ($legacyAgent) {
+            $legacyAgent->update(['name' => 'Internal Agent']);
+        }
+
         // Mobile-only roles — dashboard is admin-only.
         // These roles identify user type on the API side.
-        $roleNames = ['Client', 'Agent', 'Owner'];
+        // 'External Agent' (broker) currently gets the same viewing access
+        // as 'Internal Agent' — permissions may diverge later.
+        $roleNames = ['Client', 'Internal Agent', 'External Agent', 'Owner'];
 
         foreach ($roleNames as $name) {
             Role::firstOrCreate(['name' => $name, 'guard_name' => 'web']);
@@ -23,7 +34,7 @@ class RoleSeeder extends Seeder
             ->where('name', '!=', 'view_dashboard')
             ->get();
 
-        foreach (['Client', 'Agent', 'Owner'] as $roleName) {
+        foreach ($roleNames as $roleName) {
             $role = Role::where('name', $roleName)->first();
             // givePermissionTo skips already-assigned ones — safe to run multiple times
             $role->givePermissionTo($viewPermissions);

@@ -8,7 +8,8 @@ use Spatie\Permission\Models\Role;
 
 /**
  * Creates (or updates) the "Financial Team" dashboard role only.
- * Does not touch Super Admin, Client, Agent, Owner, or any other role —
+ * Does not touch Super Admin, Client, Internal Agent, External Agent, Owner,
+ * or any other role —
  * safe to re-run any time to bring Financial Team's permission set back
  * in line with this list.
  *

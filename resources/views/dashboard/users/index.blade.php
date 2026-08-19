@@ -21,18 +21,54 @@
                         </div>
                     @endcan
                 </div>
+
+                <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <a href="{{ route('user.index', ['role' => request('role')]) }}"
+                            class="px-3 py-1.5 text-sm rounded-lg {{ request('status') !== 'pending' ? 'bg-gray-700 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">
+                            All Users
+                        </a>
+                        <a href="{{ route('user.index', ['status' => 'pending', 'role' => request('role')]) }}"
+                            class="px-3 py-1.5 text-sm rounded-lg {{ request('status') === 'pending' ? 'bg-amber-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">
+                            Pending Broker Approvals
+                            @if ($pendingCount > 0)
+                                <span class="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-white/30">{{ $pendingCount }}</span>
+                            @endif
+                        </a>
+                    </div>
+
+                    <form method="GET" action="{{ route('user.index') }}" class="flex items-center gap-2">
+                        @if (request('status'))
+                            <input type="hidden" name="status" value="{{ request('status') }}">
+                        @endif
+                        <label for="role-filter" class="text-sm text-gray-600 dark:text-gray-300">Role:</label>
+                        <select id="role-filter" name="role" onchange="this.form.submit()"
+                            class="rounded-lg border-gray-300 dark:bg-gray-700 dark:text-gray-200 text-sm">
+                            <option value="">All Roles</option>
+                            @foreach ($roles as $role)
+                                <option value="{{ $role->name }}" {{ request('role') === $role->name ? 'selected' : '' }}>
+                                    {{ $role->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+                </div>
+
                 @php
                     $columns = [
                         ['label' => '#'],
                         ['label' => 'name', 'key' => 'name'],
                         ['label' => 'role', 'key' => 'roles->first()?->name'],
+                        ['label' => 'phone', 'key' => 'phone'],
+                        ['label' => 'registered', 'key' => 'registered_at'],
                         [
                             'label' => 'Status',
-                            'key' => 'is_active',
+                            'key' => 'approval_status',
                             'badge' => true,
                             'badgeMap' => [
-                                1 => ['text' => 'Active', 'color' => 'bg-green-500 text-white'],
-                                0 => ['text' => 'Deactivated', 'color' => 'bg-red-500 text-white'],
+                                'pending' => ['text' => 'Pending Approval', 'color' => 'bg-amber-500 text-white'],
+                                'active' => ['text' => 'Active', 'color' => 'bg-green-500 text-white'],
+                                'deactivated' => ['text' => 'Deactivated', 'color' => 'bg-red-500 text-white'],
                             ],
                         ],
                     ];
@@ -41,6 +77,7 @@
 
                     if (auth()->user()->can('edit_user')) {
                         $actions[] = ['type' => 'edit', 'url' => 'user.edit', 'label' => 'Edit'];
+                        $actions[] = ['type' => 'approve', 'url' => 'user.approve', 'label' => 'Approve', 'statusKey' => 'is_approved'];
                         $actions[] = ['type' => 'toggleStatus', 'url' => 'user.toggleStatus', 'label' => 'Toggle Status'];
                     }
 
