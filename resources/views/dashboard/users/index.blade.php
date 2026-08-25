@@ -75,6 +75,10 @@
 
                     $actions = [];
 
+                    if (auth()->user()->can('view_user')) {
+                        $actions[] = ['type' => 'view', 'url' => 'user.show', 'label' => 'View'];
+                    }
+
                     if (auth()->user()->can('edit_user')) {
                         $actions[] = ['type' => 'edit', 'url' => 'user.edit', 'label' => 'Edit'];
                         $actions[] = ['type' => 'approve', 'url' => 'user.approve', 'label' => 'Approve', 'statusKey' => 'is_approved'];

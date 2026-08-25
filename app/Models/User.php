@@ -7,13 +7,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.
@@ -97,5 +99,23 @@ class User extends Authenticatable
     public function appNotifications()
     {
         return $this->morphMany(Notification::class, 'notifiable')->latest();
+    }
+
+    /**
+     * Passport / Emirates ID scans for broker (External Agent) registration.
+     * Stored on the private 'local' disk — served only through the
+     * view_user-gated dashboard routes, never a public URL.
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('passport')
+            ->useDisk('local')
+            ->singleFile()
+            ->acceptsMimeTypes(['application/pdf', 'image/jpeg', 'image/png']);
+
+        $this->addMediaCollection('emirates_id')
+            ->useDisk('local')
+            ->singleFile()
+            ->acceptsMimeTypes(['application/pdf', 'image/jpeg', 'image/png']);
     }
 }

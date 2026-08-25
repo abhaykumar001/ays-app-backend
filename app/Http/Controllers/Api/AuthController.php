@@ -109,11 +109,18 @@ class AuthController extends Controller
         $record->delete();
 
         if ($role === 'External Agent') {
+            // Short-lived, single-purpose token: lets the app make one
+            // authenticated call to uploadBrokerDocuments() below before the
+            // broker has a real session (no login token is issued until an
+            // admin approves them). Deleted right after that upload.
+            $uploadToken = $user->createToken('broker-doc-upload', ['broker:upload-documents'])->plainTextToken;
+
             return response()->json([
                 'success' => true,
                 'message' => 'Your account has been registered successfully.',
                 'data'    => [
                     'pending_approval' => true,
+                    'upload_token'     => $uploadToken,
                     'user'             => new UserResource($user),
                 ],
             ], 201);
@@ -129,6 +136,44 @@ class AuthController extends Controller
                 'user'  => new UserResource($user),
             ],
         ], 201);
+    }
+
+    /**
+     * Upload optional broker (External Agent) identity documents using the
+     * single-use token issued by verifyOtp(). Both fields are optional —
+     * either, both, or neither may be present. The token is revoked after
+     * this call regardless of which files were sent.
+     */
+    public function uploadBrokerDocuments(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if (! $user->hasRole('External Agent') || ! $request->user()->currentAccessToken()->can('broker:upload-documents')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This action is unauthorized.',
+            ], 403);
+        }
+
+        $request->validate([
+            'passport'    => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'emirates_id' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        if ($request->hasFile('passport')) {
+            $user->addMediaFromRequest('passport')->toMediaCollection('passport');
+        }
+
+        if ($request->hasFile('emirates_id')) {
+            $user->addMediaFromRequest('emirates_id')->toMediaCollection('emirates_id');
+        }
+
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Documents uploaded successfully.',
+        ]);
     }
 
     /**

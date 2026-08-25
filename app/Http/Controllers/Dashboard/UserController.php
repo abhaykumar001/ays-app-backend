@@ -12,9 +12,16 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    /**
+     * The only document collections a user can have (broker identity docs).
+     * Used to validate the {type} route parameter on the view/download
+     * endpoints below.
+     */
+    private const DOCUMENT_TYPES = ['passport', 'emirates_id'];
+
     public function __construct()
     {
-        $this->middleware('permission:view_user')->only(['index', 'show']);
+        $this->middleware('permission:view_user')->only(['index', 'show', 'viewDocument', 'downloadDocument']);
         $this->middleware('permission:create_user')->only(['create', 'store']);
         $this->middleware('permission:edit_user')->only(['edit', 'update', 'toggleStatus', 'approve']);
         $this->middleware('permission:delete_user')->only(['destroy']);
@@ -83,7 +90,51 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $user = User::with('roles')->findOrFail($id);
+
+        $documents = [];
+        foreach (self::DOCUMENT_TYPES as $type) {
+            $media = $user->getFirstMedia($type);
+            $documents[$type] = $media ? [
+                'file_name'  => $media->file_name,
+                'uploaded_at' => $media->created_at->format('M d, Y'),
+            ] : null;
+        }
+
+        return view('dashboard.users.show', compact('user', 'documents'));
+    }
+
+    /**
+     * Stream a broker's identity document inline (opens in the browser).
+     */
+    public function viewDocument(string $id, string $type)
+    {
+        $media = $this->findDocumentMedia($id, $type);
+
+        return response()->file($media->getPath(), [
+            'Content-Type' => $media->mime_type,
+        ]);
+    }
+
+    /**
+     * Force-download a broker's identity document.
+     */
+    public function downloadDocument(string $id, string $type)
+    {
+        $media = $this->findDocumentMedia($id, $type);
+
+        return response()->download($media->getPath(), $media->file_name);
+    }
+
+    private function findDocumentMedia(string $id, string $type)
+    {
+        abort_unless(in_array($type, self::DOCUMENT_TYPES, true), 404);
+
+        $media = User::findOrFail($id)->getFirstMedia($type);
+
+        abort_if(! $media, 404);
+
+        return $media;
     }
 
     /**

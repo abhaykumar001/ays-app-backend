@@ -87,6 +87,7 @@ Route::prefix('v1')->group(function () {
         Route::get('auth/me',        [AuthController::class, 'me']);
         Route::put('auth/profile',   [AuthController::class, 'updateProfile']);
         Route::delete('auth/account', [AuthController::class, 'deleteAccount']);
+        Route::post('auth/broker-documents', [AuthController::class, 'uploadBrokerDocuments']);
 
         // Announcements for logged-in users (includes user-targeted ones)
         Route::get('announcements/user', [ContentController::class, 'announcements']);

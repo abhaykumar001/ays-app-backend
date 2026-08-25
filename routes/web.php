@@ -160,6 +160,8 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
     Route::resource('user', UserController::class);
     Route::patch('user/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('user.toggleStatus');
     Route::patch('user/{id}/approve', [UserController::class, 'approve'])->name('user.approve');
+    Route::get('user/{id}/document/{type}', [UserController::class, 'viewDocument'])->name('user.document.view');
+    Route::get('user/{id}/document/{type}/download', [UserController::class, 'downloadDocument'])->name('user.document.download');
     Route::resource('seoData', SeoDataController::class);
     Route::resource('permission', PermissionController::class);
     Route::resource('roles', RoleController::class);
