@@ -31,9 +31,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::with('roles')->whereDoesntHave('roles', function ($query) {
-            $query->where('name', 'Super Admin');
-        });
+        $query = User::with('roles');
 
         if ($request->query('status') === 'pending') {
             $query->pendingApproval();
@@ -45,7 +43,7 @@ class UserController extends Controller
 
         $users = $query->latest()->get();
         $pendingCount = User::pendingApproval()->count();
-        $roles = Role::where('name', '!=', 'Super Admin')->orderBy('name')->get();
+        $roles = Role::orderBy('name')->get();
 
         return view('dashboard.users.index', compact('users', 'pendingCount', 'roles'));
     }
@@ -155,6 +153,10 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
+        if ($user->is_protected) {
+            return redirect()->back()->with('status', 'error')->with('message', 'The founding Super Admin account cannot be edited.');
+        }
+
         try {
             $user->update([
                 'name' => $request->name,
@@ -187,6 +189,15 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         $user = User::findOrFail($id);
+
+        if ($user->is_protected) {
+            return redirect()->back()->with('status', 'error')->with('message', 'The founding Super Admin account cannot be deleted.');
+        }
+
+        if ($user->hasRole('Super Admin') && $this->isLastSuperAdmin($user)) {
+            return redirect()->back()->with('status', 'error')->with('message', 'Cannot delete the last remaining Super Admin.');
+        }
+
         $user->delete();
         return redirect()->back()->with('status', 'success')->with('message', 'User deleted successfully.');
     }
@@ -197,12 +208,31 @@ class UserController extends Controller
     public function toggleStatus(string $id)
     {
         $user = User::findOrFail($id);
+
+        if ($user->is_protected) {
+            return redirect()->back()->with('status', 'error')->with('message', 'The founding Super Admin account cannot be deactivated.');
+        }
+
+        if ($user->is_active && $user->hasRole('Super Admin') && $this->isLastSuperAdmin($user)) {
+            return redirect()->back()->with('status', 'error')->with('message', 'Cannot deactivate the last remaining Super Admin.');
+        }
+
         $user->is_active = ! $user->is_active;
         $user->save();
 
         $status = $user->is_active ? 'activated' : 'deactivated';
 
         return redirect()->back()->with('status', 'success')->with('message', "User {$status} successfully.");
+    }
+
+    /**
+     * Guards destroy/toggleStatus from removing the only account able to
+     * administer the dashboard, now that Super Admins are visible (and
+     * clickable) in the Users list alongside everyone else.
+     */
+    private function isLastSuperAdmin(User $user): bool
+    {
+        return User::role('Super Admin')->where('id', '!=', $user->id)->doesntExist();
     }
 
     /**

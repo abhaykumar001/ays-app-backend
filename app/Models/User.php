@@ -55,7 +55,13 @@ class User extends Authenticatable implements HasMedia
         ];
     }
 
-    protected $appends = ['approval_status', 'registered_at'];
+    protected $appends = ['approval_status', 'registered_at', 'is_protected'];
+
+    /**
+     * The account id of the founding Super Admin. Fixed at seed time
+     * (UserSeeder) and never reassigned, so id comparison is safe here.
+     */
+    public const ROOT_ADMIN_ID = 1;
 
     public function roles()
     {
@@ -83,6 +89,16 @@ class User extends Authenticatable implements HasMedia
     public function getRegisteredAtAttribute(): ?string
     {
         return $this->created_at?->format('M d, Y');
+    }
+
+    /**
+     * Drives the dashboard Users list: hides the Edit/Approve/Toggle/Delete
+     * actions for the founding Super Admin account so it can't be
+     * edited, deactivated, or deleted from the list by accident.
+     */
+    public function getIsProtectedAttribute(): bool
+    {
+        return $this->id === self::ROOT_ADMIN_ID;
     }
 
     public function deviceTokens()

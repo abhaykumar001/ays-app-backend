@@ -90,7 +90,7 @@
                     }
 
                     if (count($actions) > 0) {
-                        $columns[] = ['label' => 'Actions', 'actions' => $actions];
+                        $columns[] = ['label' => 'Actions', 'actions' => $actions, 'lockKey' => 'is_protected', 'lockExcept' => ['view']];
                     }
                 @endphp
                 <x-datatable :data="$users" :columns="$columns" />

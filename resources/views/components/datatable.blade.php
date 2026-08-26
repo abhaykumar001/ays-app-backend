@@ -55,7 +55,12 @@
 
                                     {{-- Actions passed via Blade --}}
                                 @elseif(isset($col['actions']) && is_array($col['actions']))
+                                    @php
+                                        $isLocked = isset($col['lockKey']) && data_get($item, $col['lockKey']);
+                                        $lockExcept = $col['lockExcept'] ?? [];
+                                    @endphp
                                     @foreach ($col['actions'] as $action)
+                                        @continue($isLocked && !in_array($action['type'], $lockExcept, true))
                                         @php
                                             $label = $action['label'] ?? ucfirst($action['type']);
                                             $routeName = $action['url'] ?? '#';
