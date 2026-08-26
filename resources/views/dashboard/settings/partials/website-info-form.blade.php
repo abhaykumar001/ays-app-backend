@@ -90,6 +90,19 @@
                 @endif
             </div>
 
+            <div class="md:col-span-6">
+                <x-input-label for="welcome_video" :value="__('New Welcome Screen Background Video')" />
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('MP4/MOV, up to 50MB. Plays muted and looped behind the app\'s new welcome screen.') }}</p>
+                <x-text-input id="welcome_video" name="welcome_video" type="file" allowed="video/*"
+                    class="mt-1 block w-full" :disabled="!$canEdit2" />
+                <x-input-error :messages="$errors->get('welcome_video')" class="mt-2" />
+                @if (isset($settingsArr['welcome_video']) && $settingsArr['welcome_video'] != '')
+                    <div class="mt-2">
+                        <video src="{{ $settingsArr['welcome_video'] }}" controls muted class="h-48 w-auto rounded-lg bg-black"></video>
+                    </div>
+                @endif
+            </div>
+
             <div class="md:col-span-12 border-t pt-6 mt-2 dark:border-gray-700">
                 <h3 class="text-md font-medium text-gray-900 dark:text-gray-100">{{ __('AYS Screen — Partnership Hero') }}</h3>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('Video, title and subtitle shown in the full-bleed hero at the top of the AYS screen in the mobile app.') }}</p>

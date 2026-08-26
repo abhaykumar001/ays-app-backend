@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Mail\OtpMail;
+use App\Mail\PasswordResetOtpMail;
 use App\Models\EmailOtp;
+use App\Models\PasswordResetOtp;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,6 +17,13 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    /**
+     * Roles allowed to self-service reset their password from the app.
+     * Internal Agent accounts are staff logins and must go through an
+     * administrator instead — see forgotPassword() below.
+     */
+    private const SELF_SERVICE_RESET_ROLES = ['Client', 'External Agent', 'Owner'];
+
     /**
      * Register: validate details, store pending OTP record, send email.
      */
@@ -250,6 +259,105 @@ class AuthController extends Controller
                 'token' => $token,
                 'user'  => new UserResource($user),
             ],
+        ]);
+    }
+
+    /**
+     * Forgot password (step 1): email an OTP to reset with.
+     * Only Client / External Agent / Owner accounts may self-service reset —
+     * Internal Agent (staff) accounts must contact an administrator.
+     */
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No account found with this email.',
+            ], 404);
+        }
+
+        if (! $user->getRoleNames()->intersect(self::SELF_SERVICE_RESET_ROLES)->count()) {
+            return response()->json([
+                'success' => false,
+                'message' => "Password reset isn't available for this account type. Please contact your administrator.",
+            ], 403);
+        }
+
+        $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        PasswordResetOtp::updateOrCreate(
+            ['email' => $user->email],
+            ['otp' => $otp, 'expires_at' => now()->addMinutes(10)]
+        );
+
+        Mail::to($user->email)->send(new PasswordResetOtpMail($otp, $user->name));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'A password reset code has been sent to your email.',
+            'data'    => ['email' => $user->email],
+        ]);
+    }
+
+    /**
+     * Forgot password (step 2): verify the OTP and set a new password in one
+     * call. Revokes all existing sessions on success so a stolen/expired
+     * token elsewhere can't keep using the old password's session.
+     */
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email'    => 'required|email',
+            'otp'      => 'required|string|size:6',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $record = PasswordResetOtp::where('email', $request->email)->latest()->first();
+
+        if (! $record) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No password reset was requested for this email. Please request a new code.',
+            ], 422);
+        }
+
+        if ($record->isExpired()) {
+            $record->delete();
+            return response()->json([
+                'success' => false,
+                'message' => 'This code has expired. Please request a new one.',
+            ], 422);
+        }
+
+        if ($record->otp !== $request->otp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid code. Please try again.',
+            ], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user) {
+            $record->delete();
+            return response()->json([
+                'success' => false,
+                'message' => 'No account found with this email.',
+            ], 404);
+        }
+
+        $user->password = $request->password;
+        $user->save();
+        $user->tokens()->delete();
+        $record->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Your password has been reset. Please log in with your new password.',
         ]);
     }
 

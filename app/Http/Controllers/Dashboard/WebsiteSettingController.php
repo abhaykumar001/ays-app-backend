@@ -42,6 +42,7 @@ class WebsiteSettingController extends Controller
             'partnership_hero_title' => 'nullable|string|max:255',
             'partnership_hero_subtitle' => 'nullable|string|max:255',
             'partnership_hero_video' => 'nullable|mimes:mp4,mov,avi,mkv|max:51200',
+            'welcome_video' => 'nullable|mimes:mp4,mov,avi,mkv|max:51200',
         ]);
 
         $fields = [
@@ -90,6 +91,13 @@ class WebsiteSettingController extends Controller
             $settings->clearMediaCollection('partnership_hero_videos');
             $settings->addMedia($request->file('partnership_hero_video'))
                 ->toMediaCollection('partnership_hero_videos');
+        }
+
+        // Handle welcome screen background video upload
+        if ($request->hasFile('welcome_video')) {
+            $settings->clearMediaCollection('welcome_videos');
+            $settings->addMedia($request->file('welcome_video'))
+                ->toMediaCollection('welcome_videos');
         }
 
         return redirect()->back()->with('status', 'success')->with('message', 'Updated Data Successfully.');;

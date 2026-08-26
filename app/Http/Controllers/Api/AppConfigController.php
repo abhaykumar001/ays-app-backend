@@ -14,6 +14,7 @@ class AppConfigController extends Controller
         return response()->json([
             'data' => [
                 'login_banner_url' => $settingsArr['login_banner'] ?? null,
+                'welcome_video_url' => $settingsArr['welcome_video'] ?? null,
                 'partnership_hero_video_url' => $settingsArr['partnership_hero_video'] ?? null,
                 'partnership_hero_title' => $settingsArr['partnership_hero_title'] ?? null,
                 'partnership_hero_subtitle' => $settingsArr['partnership_hero_subtitle'] ?? null,

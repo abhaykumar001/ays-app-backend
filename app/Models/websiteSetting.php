@@ -29,6 +29,7 @@ class websiteSetting extends Model implements HasMedia
         'favicon',
         'login_banner',
         'partnership_hero_video',
+        'welcome_video',
         'formattedCreatedAt'
     ];
     public function user()
@@ -50,6 +51,10 @@ class websiteSetting extends Model implements HasMedia
     public function getPartnershipHeroVideoAttribute()
     {
         return $this->getFirstMediaUrl('partnership_hero_videos');
+    }
+    public function getWelcomeVideoAttribute()
+    {
+        return $this->getFirstMediaUrl('welcome_videos');
     }
     public function getFormattedCreatedAtAttribute()
     {
@@ -103,11 +108,13 @@ class websiteSetting extends Model implements HasMedia
             $arr['favicon'] = $logoSetting->favicon ?? null;
             $arr['login_banner'] = $logoSetting->login_banner ?? null;
             $arr['partnership_hero_video'] = $logoSetting->partnership_hero_video ?? null;
+            $arr['welcome_video'] = $logoSetting->welcome_video ?? null;
         } else {
             $arr['logo'] = null;
             $arr['favicon'] = null;
             $arr['login_banner'] = null;
             $arr['partnership_hero_video'] = null;
+            $arr['welcome_video'] = null;
         }
         return $arr;
     }
