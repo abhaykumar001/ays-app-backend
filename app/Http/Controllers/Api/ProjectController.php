@@ -13,14 +13,15 @@ use Illuminate\Http\Request;
 class ProjectController extends Controller
 {
     /**
-     * Internal and External agents see both active and inactive projects;
-     * everyone else (guests, Client, Owner) only sees active projects.
+     * Internal Agent, External Agent (broker), and External Agency see both
+     * active and inactive projects; everyone else (guests, Client, Owner)
+     * only sees active projects.
      */
     private function visibleProjects(Request $request)
     {
         $role = $request->user('sanctum')?->getRoleNames()->first();
 
-        return in_array($role, ['Internal Agent', 'External Agent'], true)
+        return in_array($role, ['Internal Agent', 'External Agent', 'External Agency'], true)
             ? Project::query()
             : Project::active();
     }

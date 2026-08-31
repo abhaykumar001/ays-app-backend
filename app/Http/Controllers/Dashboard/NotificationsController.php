@@ -23,7 +23,7 @@ class NotificationsController extends Controller
     public function create()
     {
         return view('dashboard.notifications.create', [
-            'roles'    => Role::whereIn('name', ['Client', 'Internal Agent', 'External Agent', 'Owner'])->pluck('name'),
+            'roles'    => Role::whereIn('name', ['Client', 'Internal Agent', 'External Agent', 'External Agency', 'Owner'])->pluck('name'),
             'projects' => Project::select('id', 'slug', 'name')->orderBy('name')->get(),
             'offers'   => ProjectOffer::with('project:id,name')->orderBy('title')->get(),
             'events'   => Event::select('id', 'slug', 'title')->orderBy('title')->get(),

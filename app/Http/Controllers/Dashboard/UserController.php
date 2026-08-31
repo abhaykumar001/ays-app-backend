@@ -13,11 +13,12 @@ use Spatie\Permission\Models\Role;
 class UserController extends Controller
 {
     /**
-     * The only document collections a user can have (broker identity docs).
+     * The only document collections a user can have (broker identity docs,
+     * plus External Agency's Trade License / owner identity document).
      * Used to validate the {type} route parameter on the view/download
      * endpoints below.
      */
-    private const DOCUMENT_TYPES = ['passport', 'emirates_id'];
+    private const DOCUMENT_TYPES = ['passport', 'emirates_id', 'trade_license', 'owner_identity_document'];
 
     public function __construct()
     {

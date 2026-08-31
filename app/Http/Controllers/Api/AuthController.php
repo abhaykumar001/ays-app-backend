@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -22,19 +23,38 @@ class AuthController extends Controller
      * Internal Agent accounts are staff logins and must go through an
      * administrator instead — see forgotPassword() below.
      */
-    private const SELF_SERVICE_RESET_ROLES = ['Client', 'External Agent', 'Owner'];
+    private const SELF_SERVICE_RESET_ROLES = ['Client', 'External Agent', 'External Agency', 'Owner'];
+
+    /**
+     * Roles that self-register into a pending state and need admin approval
+     * before they can log in — see verifyOtp() and login() below.
+     */
+    private const PENDING_APPROVAL_ROLES = ['External Agent', 'External Agency'];
 
     /**
      * Register: validate details, store pending OTP record, send email.
+     * External Agent (broker) and External Agency registrations also carry
+     * a company name + Official Registration Number; External Agency
+     * additionally requires bank details and a Tax Registration Number.
+     * All of this is held on the EmailOtp row until verifyOtp() creates the
+     * real User record.
      */
     public function register(Request $request): JsonResponse
     {
+        $role = $request->input('role') ?? 'Client';
+
         $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
             'phone'    => 'required|string|max:20',
             'password' => 'required|string|min:8|confirmed',
-            'role'     => 'nullable|string|in:Client,External Agent',
+            'role'     => 'nullable|string|in:Client,External Agent,External Agency',
+            'company_name' => Rule::requiredIf(in_array($role, ['External Agent', 'External Agency'], true)) . '|string|max:255',
+            'official_registration_number' => Rule::requiredIf(in_array($role, ['External Agent', 'External Agency'], true)) . '|string|max:100',
+            'bank_name'      => Rule::requiredIf($role === 'External Agency') . '|string|max:255',
+            'iban_number'    => Rule::requiredIf($role === 'External Agency') . '|string|max:50',
+            'account_number' => Rule::requiredIf($role === 'External Agency') . '|string|max:50',
+            'trn_number'     => Rule::requiredIf($role === 'External Agency') . '|string|max:50',
         ]);
 
         $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -45,9 +65,15 @@ class AuthController extends Controller
                 'name'           => $request->name,
                 'phone'          => $request->phone,
                 'plain_password' => $request->password,
-                'role'           => $request->role ?? 'Client',
+                'role'           => $role,
                 'otp'            => $otp,
                 'expires_at'     => now()->addMinutes(10),
+                'company_name'                  => $request->company_name,
+                'official_registration_number'  => $request->official_registration_number,
+                'bank_name'      => $request->bank_name,
+                'iban_number'    => $request->iban_number,
+                'account_number' => $request->account_number,
+                'trn_number'     => $request->trn_number,
             ]
         );
 
@@ -101,15 +127,21 @@ class AuthController extends Controller
             'email'    => $record->email,
             'phone'    => $record->phone,
             'password' => $record->plain_password,
+            'company_name'                 => $record->company_name,
+            'official_registration_number' => $record->official_registration_number,
+            'bank_name'      => $record->bank_name,
+            'iban_number'    => $record->iban_number,
+            'account_number' => $record->account_number,
+            'trn_number'     => $record->trn_number,
         ]);
 
         $user->email_verified_at = now();
 
-        // External agents (brokers) self-registering from the app start out
-        // unapproved and can't log in until an admin approves them from the
-        // dashboard — see AuthController::login() and
-        // Dashboard\UserController::approve().
-        if ($role === 'External Agent') {
+        // External Agent (broker) and External Agency accounts self-
+        // registering from the app start out unapproved and can't log in
+        // until an admin approves them from the dashboard — see
+        // AuthController::login() and Dashboard\UserController::approve().
+        if (in_array($role, self::PENDING_APPROVAL_ROLES, true)) {
             $user->is_approved = false;
         }
 
@@ -123,6 +155,23 @@ class AuthController extends Controller
             // broker has a real session (no login token is issued until an
             // admin approves them). Deleted right after that upload.
             $uploadToken = $user->createToken('broker-doc-upload', ['broker:upload-documents'])->plainTextToken;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Your account has been registered successfully.',
+                'data'    => [
+                    'pending_approval' => true,
+                    'upload_token'     => $uploadToken,
+                    'user'             => new UserResource($user),
+                ],
+            ], 201);
+        }
+
+        if ($role === 'External Agency') {
+            // Same pattern as the broker upload token above, but Trade
+            // License + owner identity document are mandatory for an
+            // agency — see uploadAgencyDocuments() below.
+            $uploadToken = $user->createToken('agency-doc-upload', ['agency:upload-documents'])->plainTextToken;
 
             return response()->json([
                 'success' => true,
@@ -176,6 +225,45 @@ class AuthController extends Controller
         if ($request->hasFile('emirates_id')) {
             $user->addMediaFromRequest('emirates_id')->toMediaCollection('emirates_id');
         }
+
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Documents uploaded successfully.',
+        ]);
+    }
+
+    /**
+     * Upload required External Agency registration documents (Trade License
+     * + the owner's Passport/EID or Power of Attorney) using the single-use
+     * token issued by verifyOtp(). Unlike uploadBrokerDocuments(), both
+     * files are mandatory — this call must succeed before the agency's
+     * registration is considered complete. The token is revoked after a
+     * successful call; a validation failure leaves it intact so the app can
+     * retry.
+     */
+    public function uploadAgencyDocuments(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if (! $user->hasRole('External Agency') || ! $request->user()->currentAccessToken()->can('agency:upload-documents')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This action is unauthorized.',
+            ], 403);
+        }
+
+        $request->validate([
+            'trade_license'            => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'owner_identity_document'  => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'owner_document_type'      => 'required|string|in:passport_eid,poa',
+        ]);
+
+        $user->addMediaFromRequest('trade_license')->toMediaCollection('trade_license');
+        $user->addMediaFromRequest('owner_identity_document')->toMediaCollection('owner_identity_document');
+        $user->owner_document_type = $request->owner_document_type;
+        $user->save();
 
         $request->user()->currentAccessToken()->delete();
 

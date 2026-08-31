@@ -27,6 +27,13 @@ class User extends Authenticatable implements HasMedia
         'email',
         'phone',
         'password',
+        'company_name',
+        'official_registration_number',
+        'bank_name',
+        'iban_number',
+        'account_number',
+        'trn_number',
+        'owner_document_type',
     ];
 
     /**
@@ -130,6 +137,19 @@ class User extends Authenticatable implements HasMedia
             ->acceptsMimeTypes(['application/pdf', 'image/jpeg', 'image/png']);
 
         $this->addMediaCollection('emirates_id')
+            ->useDisk('local')
+            ->singleFile()
+            ->acceptsMimeTypes(['application/pdf', 'image/jpeg', 'image/png']);
+
+        // External Agency registration documents. 'owner_identity_document'
+        // holds whichever of Passport/EID or Power of Attorney was
+        // submitted — see the owner_document_type column for which one.
+        $this->addMediaCollection('trade_license')
+            ->useDisk('local')
+            ->singleFile()
+            ->acceptsMimeTypes(['application/pdf', 'image/jpeg', 'image/png']);
+
+        $this->addMediaCollection('owner_identity_document')
             ->useDisk('local')
             ->singleFile()
             ->acceptsMimeTypes(['application/pdf', 'image/jpeg', 'image/png']);

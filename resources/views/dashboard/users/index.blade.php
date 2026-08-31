@@ -30,7 +30,7 @@
                         </a>
                         <a href="{{ route('user.index', ['status' => 'pending', 'role' => request('role')]) }}"
                             class="px-3 py-1.5 text-sm rounded-lg {{ request('status') === 'pending' ? 'bg-amber-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">
-                            Pending Broker Approvals
+                            Pending Approvals
                             @if ($pendingCount > 0)
                                 <span class="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-white/30">{{ $pendingCount }}</span>
                             @endif

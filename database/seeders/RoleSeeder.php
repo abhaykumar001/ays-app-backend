@@ -21,9 +21,11 @@ class RoleSeeder extends Seeder
 
         // Mobile-only roles — dashboard is admin-only.
         // These roles identify user type on the API side.
-        // 'External Agent' (broker) currently gets the same viewing access
-        // as 'Internal Agent' — permissions may diverge later.
-        $roleNames = ['Client', 'Internal Agent', 'External Agent', 'Owner'];
+        // 'External Agent' (broker) and 'External Agency' currently get the
+        // same viewing access as 'Internal Agent' — permissions may diverge
+        // later (External Agency intentionally mirrors External Agent for
+        // now, per explicit product decision).
+        $roleNames = ['Client', 'Internal Agent', 'External Agent', 'External Agency', 'Owner'];
 
         foreach ($roleNames as $name) {
             Role::firstOrCreate(['name' => $name, 'guard_name' => 'web']);

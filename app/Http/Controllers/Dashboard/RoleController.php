@@ -14,7 +14,7 @@ class RoleController extends Controller
     // (Internal Agent, External Agent, Client) or full dashboard access
     // (Super Admin) — so deleting them by accident would break login/permission
     // checks elsewhere. Not editable via this list; just excluded from deletion.
-    public const PROTECTED_ROLES = ['Super Admin', 'Internal Agent', 'External Agent', 'Client'];
+    public const PROTECTED_ROLES = ['Super Admin', 'Internal Agent', 'External Agent', 'External Agency', 'Client'];
 
     public function __construct()
     {
