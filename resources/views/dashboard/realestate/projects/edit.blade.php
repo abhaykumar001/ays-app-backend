@@ -78,6 +78,7 @@
                                 'off_plan' => 'Off Plan',
                                 'ready' => 'Ready',
                                 'under_construction' => 'Under Construction',
+                                'handover' => 'Handover',
                             ]" :value="old('project_status', $project->project_status)" />
                             <x-input-error :messages="$errors->get('project_status')" class="mt-2" />
                         </div>
@@ -89,6 +90,7 @@
                                 'available' => 'Available',
                                 'sold_out' => 'Sold Out',
                                 'coming_soon' => 'Coming Soon',
+                                'handover' => 'Handover',
                             ]" :value="old('sales_status', $project->sales_status)" />
                             <x-input-error :messages="$errors->get('sales_status')" class="mt-2" />
                         </div>
@@ -173,6 +175,7 @@
                                 'on_request' => 'Price on Request',
                                 'coming_soon' => 'Coming Soon',
                                 'sold_out' => 'Sold Out',
+                                'handover' => 'Handover',
                             ]" :value="old('price_status', $project->price_status ?? 'price')" onchange="
                                 const inp = document.getElementById('starting_price');
                                 if (this.value === 'price') { inp.disabled = false; inp.focus(); }

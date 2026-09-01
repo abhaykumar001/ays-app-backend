@@ -21,23 +21,27 @@ class ConstructionStagesController extends Controller
             ->orderBy('name')
             ->get();
 
+        $totalWeight = $stages->sum('weight_percentage');
+
         $editStage = $request->filled('edit')
             ? ConstructionStage::find($request->integer('edit'))
             : null;
 
-        return view('dashboard.realestate.constructionStages.index', compact('stages', 'editStage'));
+        return view('dashboard.realestate.constructionStages.index', compact('stages', 'editStage', 'totalWeight'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'name'       => 'required|string|max:255|unique:construction_stages,name',
-            'sort_order' => 'nullable|integer|min:0',
+            'name'              => 'required|string|max:255|unique:construction_stages,name',
+            'sort_order'        => 'nullable|integer|min:0',
+            'weight_percentage' => 'nullable|numeric|min:0|max:100',
         ]);
 
         ConstructionStage::create([
-            'name'       => $request->name,
-            'sort_order' => $request->integer('sort_order', 0),
+            'name'              => $request->name,
+            'sort_order'        => $request->integer('sort_order', 0),
+            'weight_percentage' => $request->filled('weight_percentage') ? $request->weight_percentage : 0,
         ]);
 
         return redirect()->route('constructionStages.index')
@@ -48,13 +52,15 @@ class ConstructionStagesController extends Controller
     public function update(Request $request, ConstructionStage $constructionStage)
     {
         $request->validate([
-            'name'       => 'required|string|max:255|unique:construction_stages,name,' . $constructionStage->id,
-            'sort_order' => 'nullable|integer|min:0',
+            'name'              => 'required|string|max:255|unique:construction_stages,name,' . $constructionStage->id,
+            'sort_order'        => 'nullable|integer|min:0',
+            'weight_percentage' => 'nullable|numeric|min:0|max:100',
         ]);
 
         $constructionStage->update([
-            'name'       => $request->name,
-            'sort_order' => $request->integer('sort_order', 0),
+            'name'              => $request->name,
+            'sort_order'        => $request->integer('sort_order', 0),
+            'weight_percentage' => $request->filled('weight_percentage') ? $request->weight_percentage : 0,
         ]);
 
         return redirect()->route('constructionStages.index')

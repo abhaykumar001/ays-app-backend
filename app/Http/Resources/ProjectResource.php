@@ -39,6 +39,7 @@ class ProjectResource extends JsonResource
             'off_plan'          => 'offPlan',
             'ready'             => 'ready',
             'under_construction' => 'construction',
+            'handover'          => 'handover',
         ];
 
         return [
@@ -109,6 +110,7 @@ class ProjectResource extends JsonResource
             'on_request'  => 'Price on Request',
             'coming_soon' => 'Coming Soon',
             'sold_out'    => 'Sold Out',
+            'handover'    => 'Handover',
         ];
 
         $status = $this->price_status ?? 'price';

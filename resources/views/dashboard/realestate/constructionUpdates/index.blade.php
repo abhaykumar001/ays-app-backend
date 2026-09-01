@@ -17,9 +17,41 @@
             <div class="bg-white dark:bg-gray-800 p-6 rounded shadow">
                 <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Overall Progress</h2>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                    Auto-calculated as the average progress across the stages below ({{ $autoProgress }}% right now).
+                    Auto-calculated from each stage's progress weighted by its contribution to the project
+                    (Σ Progress % × Weight % ÷ 100 — {{ $autoProgress }}% right now).
                     Leave the override blank to use that automatically, or set a fixed number to show instead.
+                    Manage stage weights under <a href="{{ route('constructionStages.index') }}" class="underline">Construction Stages</a>.
                 </p>
+
+                <div class="overflow-x-auto mb-4">
+                    <table class="min-w-full text-sm divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead>
+                            <tr class="text-left text-gray-600 dark:text-gray-300">
+                                <th class="px-3 py-2">Stage</th>
+                                <th class="px-3 py-2">Progress %</th>
+                                <th class="px-3 py-2">Weight %</th>
+                                <th class="px-3 py-2">Contribution %</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            @foreach ($breakdown as $row)
+                                <tr class="text-gray-700 dark:text-gray-200">
+                                    <td class="px-3 py-2">{{ $row['name'] }}</td>
+                                    <td class="px-3 py-2">{{ rtrim(rtrim(number_format($row['progress'], 2), '0'), '.') }}%</td>
+                                    <td class="px-3 py-2">{{ rtrim(rtrim(number_format($row['weight'], 2), '0'), '.') }}%</td>
+                                    <td class="px-3 py-2">{{ rtrim(rtrim(number_format($row['contribution'], 2), '0'), '.') }}%</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr class="text-left font-semibold text-gray-900 dark:text-gray-100 border-t border-gray-300 dark:border-gray-600">
+                                <td class="px-3 py-2" colspan="3">Overall Project Progress</td>
+                                <td class="px-3 py-2">{{ $autoProgress }}%</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
                 @can('edit_construction_updates')
                     <form method="POST" action="{{ route('projects.constructionUpdates.overallProgress', $project) }}" class="flex items-end gap-3">
                         @csrf

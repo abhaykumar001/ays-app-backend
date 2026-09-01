@@ -12,6 +12,11 @@ class ConstructionStage extends Model
     protected $fillable = [
         'name',
         'sort_order',
+        'weight_percentage',
+    ];
+
+    protected $casts = [
+        'weight_percentage' => 'float',
     ];
 
     public function constructionUpdates()

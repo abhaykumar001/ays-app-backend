@@ -25,14 +25,25 @@ class ConstructionUpdatesController extends Controller
         $updates = $project->constructionUpdates()->with('stage')->orderBy('sort_order')->get();
         $stages = ConstructionStage::orderBy('sort_order')->orderBy('name')->get();
 
-        $autoProgress = (int) round(
-            $project->constructionUpdates()
-                ->where('is_active', true)
-                ->whereNotNull('progress_percentage')
-                ->avg('progress_percentage') ?? 0
-        );
+        // Reuse $updates (already stage-eager-loaded) for the weighted auto-calc.
+        $project->setRelation('constructionUpdates', $updates);
+        $autoProgress = $project->autoConstructionProgress();
 
-        return view('dashboard.realestate.constructionUpdates.index', compact('project', 'updates', 'stages', 'autoProgress'));
+        // Per-stage breakdown for the "Progress % × Weight % = Contribution %" table —
+        // one row per stage in the master list, 0% progress for any stage with no update yet.
+        $activeUpdatesByStage = $updates->where('is_active', true)->keyBy('construction_stage_id');
+        $breakdown = $stages->map(function ($stage) use ($activeUpdatesByStage) {
+            $progress = (float) ($activeUpdatesByStage->get($stage->id)?->progress_percentage ?? 0);
+            $weight = (float) $stage->weight_percentage;
+            return [
+                'name' => $stage->name,
+                'progress' => $progress,
+                'weight' => $weight,
+                'contribution' => $progress * $weight / 100,
+            ];
+        });
+
+        return view('dashboard.realestate.constructionUpdates.index', compact('project', 'updates', 'stages', 'autoProgress', 'breakdown'));
     }
 
     /** Set or clear the manual override for the project's overall construction progress. */

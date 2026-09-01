@@ -40,7 +40,7 @@ class ProjectController extends Controller
         $query = $this->visibleProjects($request)
             ->with([
                 'amenities', 'community', 'accommodations',
-                'constructionUpdates' => fn($q) => $q->where('is_active', true),
+                'constructionUpdates' => fn($q) => $q->where('is_active', true)->with('stage'),
             ])
             ->orderBy('sort_order')
             ->orderByDesc('is_featured');
@@ -92,7 +92,7 @@ class ProjectController extends Controller
         $project = $this->visibleProjects($request)
             ->with([
                 'amenities', 'community', 'accommodations', 'units.amenities', 'units.paymentPlans.milestones',
-                'constructionUpdates' => fn($q) => $q->where('is_active', true),
+                'constructionUpdates' => fn($q) => $q->where('is_active', true)->with('stage'),
                 'paymentPlans' => fn($q) => $q->where('is_active', true)->orderBy('id'),
             ])
             ->where('slug', $slug)
@@ -139,7 +139,9 @@ class ProjectController extends Controller
         $currentStage = $updates->first()?->stage?->name;
 
         // Same computed value ProjectResource::construction_progress uses: an
-        // admin override if set, else the average across each stage's progress.
+        // admin override if set, else Σ(stage progress % × stage weight %) / 100.
+        // Reuse $updates (already active-only, stage-eager-loaded) to avoid a repeat query.
+        $project->setRelation('constructionUpdates', $updates);
         $overallProgress = $project->computedConstructionProgress();
 
         return response()->json([

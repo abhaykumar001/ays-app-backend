@@ -173,9 +173,9 @@ class Project extends Model implements HasMedia
 
     /**
      * Overall construction progress: an admin-entered override if set,
-     * otherwise the average progress across each stage's active update
-     * (one update per stage, so this is effectively "how far along, across
-     * all tracked stages, is this project on average").
+     * otherwise the weighted progress across each stage's active update
+     * (Σ(stage progress % × stage weight %) / 100 — a stage with no update
+     * yet contributes 0, and stages missing a weight contribute 0 too).
      */
     public function computedConstructionProgress(): int
     {
@@ -183,18 +183,27 @@ class Project extends Model implements HasMedia
             return (int) $this->overall_progress_override;
         }
 
-        // Use the already-loaded relation collection when eager-loaded
-        // (ProjectController::index()/show()) to avoid an N+1 query.
-        $progresses = $this->constructionUpdates
-            ->where('is_active', true)
-            ->whereNotNull('progress_percentage')
-            ->pluck('progress_percentage');
+        return $this->autoConstructionProgress();
+    }
 
-        if ($progresses->isEmpty()) {
+    /** The weighted calculation alone, ignoring the override — used to show "what auto-calc would give". */
+    public function autoConstructionProgress(): int
+    {
+        // Use the already-loaded relation collection (with 'stage' eager-loaded)
+        // when available, to avoid N+1 queries.
+        $updates = $this->constructionUpdates
+            ->where('is_active', true)
+            ->whereNotNull('progress_percentage');
+
+        if ($updates->isEmpty()) {
             return 0;
         }
 
-        return (int) round($progresses->avg());
+        $weightedSum = $updates->sum(
+            fn ($update) => (float) $update->progress_percentage * (float) ($update->stage?->weight_percentage ?? 0) / 100
+        );
+
+        return (int) round($weightedSum);
     }
     public function paymentPlans()
     {
