@@ -10,6 +10,14 @@ return [
         'permission' => 'view_dashboard',
     ],
 
+    // Locations (standalone points of interest — sales centers, offices, show homes)
+    [
+        'title' => 'Locations',
+        'icon' => 'bi bi-geo-alt',
+        'route' => 'locations.index',
+        'permission' => 'view_locations',
+    ],
+
     // Projects
     [
         'title' => 'Projects',

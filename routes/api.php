@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OfferController;
 use App\Http\Controllers\Api\EnquiryController;
 use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\TeamMemberController;
 use App\Http\Controllers\Api\ViewingController;
@@ -44,6 +45,10 @@ Route::prefix('v1')->group(function () {
     Route::get('projects/{slug}',       [ProjectController::class, 'show']);
     Route::get('projects/{slug}/units',                [ProjectController::class, 'units']);
     Route::get('projects/{slug}/construction-updates', [ProjectController::class, 'constructionUpdates']);
+
+    // ── Locations (public — sales centers, offices, show homes) ────────────
+    Route::get('locations',      [LocationController::class, 'index']);
+    Route::get('locations/{id}', [LocationController::class, 'show']);
 
     // ── Offers (public — guest users can browse) ───────────────────────────
     Route::get('offers',      [OfferController::class, 'index']);

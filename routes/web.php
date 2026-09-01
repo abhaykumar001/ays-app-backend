@@ -48,6 +48,7 @@ use App\Http\Controllers\Dashboard\VirtualToursController;
 use App\Http\Controllers\Dashboard\DesignPhilosophyController;
 use App\Http\Controllers\Dashboard\DesignPhilosophySectionController;
 use App\Http\Controllers\Dashboard\KioskSlidesController;
+use App\Http\Controllers\Dashboard\LocationsController;
 use App\Http\Controllers\Dashboard\WebsiteSettingController;
 use App\Http\Controllers\LegalController;
 use Illuminate\Support\Facades\Route;
@@ -73,6 +74,10 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
         ->parameters(['sections' => 'section']);
     Route::delete('design-philosophy/sections/{section}/media/{mediaId}', [DesignPhilosophySectionController::class, 'destroyMedia'])
         ->name('design-philosophy.sections.media.destroy');
+
+    // Locations (standalone points of interest — not related to Projects)
+    Route::resource('locations', LocationsController::class);
+    Route::patch('locations/{id}/toggle-status', [LocationsController::class, 'toggleStatus'])->name('locations.toggleStatus');
 
     // Projects
     Route::resource('projects', ProjectsController::class);
