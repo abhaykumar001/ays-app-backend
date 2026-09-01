@@ -56,6 +56,7 @@ class ConstructionUpdatesController extends Controller
     {
         return Rule::unique('construction_updates', 'construction_stage_id')
             ->where(fn ($q) => $q->where('updatable_type', Project::class)->where('updatable_id', $project->id))
+            ->whereNull('deleted_at')
             ->ignore($ignoreId);
     }
 
@@ -83,7 +84,21 @@ class ConstructionUpdatesController extends Controller
         $data['is_public'] = $request->boolean('is_public');
         $data['is_active'] = $request->boolean('is_active', true);
 
-        $update = $project->constructionUpdates()->create($data);
+        // A soft-deleted update may still occupy this stage's unique slot;
+        // revive and overwrite it instead of inserting a new row.
+        $update = ConstructionUpdate::onlyTrashed()
+            ->where('updatable_type', Project::class)
+            ->where('updatable_id', $project->id)
+            ->where('construction_stage_id', $data['construction_stage_id'])
+            ->first();
+
+        if ($update) {
+            $update->restore();
+            $update->clearMediaCollection('updates');
+            $update->update($data);
+        } else {
+            $update = $project->constructionUpdates()->create($data);
+        }
 
         foreach ($request->file('files', []) as $file) {
             $update->addMedia($file)->toMediaCollection('updates');
