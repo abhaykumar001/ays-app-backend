@@ -18,7 +18,7 @@ class UserController extends Controller
      * Used to validate the {type} route parameter on the view/download
      * endpoints below.
      */
-    private const DOCUMENT_TYPES = ['passport', 'emirates_id', 'trade_license', 'owner_identity_document'];
+    private const DOCUMENT_TYPES = ['passport', 'emirates_id', 'trade_license', 'owner_identity_document', 'signed_agreement', 'authorized_signatory_id'];
 
     public function __construct()
     {

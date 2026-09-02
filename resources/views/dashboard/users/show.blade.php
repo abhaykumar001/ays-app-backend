@@ -133,7 +133,7 @@
                 </div>
             @endif
 
-            @if ($user->hasRole('External Agency'))
+            @if ($user->hasAnyRole(['External Agent', 'External Agency']))
                 <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
                     <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
                         {{ __('Bank & Tax Details') }}
@@ -152,13 +152,17 @@
                             <x-input-label :value="__('Account Number')" />
                             <p class="mt-1 text-gray-900 dark:text-gray-100">{{ $user->account_number ?? '-' }}</p>
                         </div>
-                        <div>
-                            <x-input-label :value="__('Tax Registration Number (TRN)')" />
-                            <p class="mt-1 text-gray-900 dark:text-gray-100">{{ $user->trn_number ?? '-' }}</p>
-                        </div>
+                        @if ($user->hasRole('External Agency'))
+                            <div>
+                                <x-input-label :value="__('Tax Registration Number (TRN)')" />
+                                <p class="mt-1 text-gray-900 dark:text-gray-100">{{ $user->trn_number ?? '-' }}</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
+            @endif
 
+            @if ($user->hasRole('External Agency'))
                 <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
                     <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
                         {{ __('Agency Documents') }}
@@ -170,10 +174,16 @@
                             'passport_eid' => 'Passport / Emirates ID',
                             default => 'Owner Identity Document',
                         };
+                        $agencyDocTypes = [
+                            'trade_license' => 'Trade License',
+                            'owner_identity_document' => $ownerDocLabel,
+                            'signed_agreement' => 'Signed Agreement Registration',
+                            'authorized_signatory_id' => 'Valid ID of the Authorized Signatory',
+                        ];
                     @endphp
 
                     <div class="grid md:grid-cols-2 gap-5">
-                        @foreach (['trade_license' => 'Trade License', 'owner_identity_document' => $ownerDocLabel] as $type => $label)
+                        @foreach ($agencyDocTypes as $type => $label)
                             <div class="p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                                 <p class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">{{ $label }}</p>
                                 @if ($documents[$type])

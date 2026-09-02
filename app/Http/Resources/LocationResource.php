@@ -12,11 +12,17 @@ class LocationResource extends JsonResource
         $image = $this->getFirstMediaUrl('images', 'resize')
             ?: $this->getFirstMediaUrl('images');
 
+        $gallery = $this->getMedia('images')
+            ->map(fn ($m) => $m->getUrl('resize') ?: $m->getUrl())
+            ->values()
+            ->all();
+
         return [
             'id'           => (string) $this->id,
             'title'        => $this->title,
             'description'  => $this->description,
             'image_url'    => $image ?: null,
+            'gallery_images' => $gallery,
             'phone'        => $this->phone ?: null,
             'email'        => $this->email ?: null,
             'website_url'  => $this->website_url ?: null,

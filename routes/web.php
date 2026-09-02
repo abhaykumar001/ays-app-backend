@@ -78,6 +78,7 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
     // Locations (standalone points of interest — not related to Projects)
     Route::resource('locations', LocationsController::class);
     Route::patch('locations/{id}/toggle-status', [LocationsController::class, 'toggleStatus'])->name('locations.toggleStatus');
+    Route::delete('locations/{location}/media/{media}', [LocationsController::class, 'destroyMedia'])->name('locations.media.destroy');
 
     // Projects
     Route::resource('projects', ProjectsController::class);

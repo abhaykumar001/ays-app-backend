@@ -153,5 +153,15 @@ class User extends Authenticatable implements HasMedia
             ->useDisk('local')
             ->singleFile()
             ->acceptsMimeTypes(['application/pdf', 'image/jpeg', 'image/png']);
+
+        $this->addMediaCollection('signed_agreement')
+            ->useDisk('local')
+            ->singleFile()
+            ->acceptsMimeTypes(['application/pdf', 'image/jpeg', 'image/png']);
+
+        $this->addMediaCollection('authorized_signatory_id')
+            ->useDisk('local')
+            ->singleFile()
+            ->acceptsMimeTypes(['application/pdf', 'image/jpeg', 'image/png']);
     }
 }

@@ -34,10 +34,10 @@ class AuthController extends Controller
     /**
      * Register: validate details, store pending OTP record, send email.
      * External Agent (broker) and External Agency registrations also carry
-     * a company name + Official Registration Number; External Agency
-     * additionally requires bank details and a Tax Registration Number.
-     * All of this is held on the EmailOtp row until verifyOtp() creates the
-     * real User record.
+     * a company name, Official/Broker Registration Number, and bank
+     * details; External Agency additionally requires a Tax Registration
+     * Number. All of this is held on the EmailOtp row until verifyOtp()
+     * creates the real User record.
      */
     public function register(Request $request): JsonResponse
     {
@@ -51,9 +51,9 @@ class AuthController extends Controller
             'role'     => 'nullable|string|in:Client,External Agent,External Agency',
             'company_name' => Rule::requiredIf(in_array($role, ['External Agent', 'External Agency'], true)) . '|string|max:255',
             'official_registration_number' => Rule::requiredIf(in_array($role, ['External Agent', 'External Agency'], true)) . '|string|max:100',
-            'bank_name'      => Rule::requiredIf($role === 'External Agency') . '|string|max:255',
-            'iban_number'    => Rule::requiredIf($role === 'External Agency') . '|string|max:50',
-            'account_number' => Rule::requiredIf($role === 'External Agency') . '|string|max:50',
+            'bank_name'      => Rule::requiredIf(in_array($role, ['External Agent', 'External Agency'], true)) . '|string|max:255',
+            'iban_number'    => Rule::requiredIf(in_array($role, ['External Agent', 'External Agency'], true)) . '|string|max:50',
+            'account_number' => Rule::requiredIf(in_array($role, ['External Agent', 'External Agency'], true)) . '|string|max:50',
             'trn_number'     => Rule::requiredIf($role === 'External Agency') . '|string|max:50',
         ]);
 
@@ -235,13 +235,14 @@ class AuthController extends Controller
     }
 
     /**
-     * Upload required External Agency registration documents (Trade License
-     * + the owner's Passport/EID or Power of Attorney) using the single-use
-     * token issued by verifyOtp(). Unlike uploadBrokerDocuments(), both
-     * files are mandatory — this call must succeed before the agency's
-     * registration is considered complete. The token is revoked after a
-     * successful call; a validation failure leaves it intact so the app can
-     * retry.
+     * Upload required External Agency registration documents (Trade
+     * License, the owner's Passport/EID or Power of Attorney, Signed
+     * Agreement Registration, and the Authorized Signatory's valid ID)
+     * using the single-use token issued by verifyOtp(). Unlike
+     * uploadBrokerDocuments(), all files are mandatory — this call must
+     * succeed before the agency's registration is considered complete. The
+     * token is revoked after a successful call; a validation failure
+     * leaves it intact so the app can retry.
      */
     public function uploadAgencyDocuments(Request $request): JsonResponse
     {
@@ -258,10 +259,14 @@ class AuthController extends Controller
             'trade_license'            => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'owner_identity_document'  => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'owner_document_type'      => 'required|string|in:passport_eid,poa',
+            'signed_agreement'         => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'authorized_signatory_id'  => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
 
         $user->addMediaFromRequest('trade_license')->toMediaCollection('trade_license');
         $user->addMediaFromRequest('owner_identity_document')->toMediaCollection('owner_identity_document');
+        $user->addMediaFromRequest('signed_agreement')->toMediaCollection('signed_agreement');
+        $user->addMediaFromRequest('authorized_signatory_id')->toMediaCollection('authorized_signatory_id');
         $user->owner_document_type = $request->owner_document_type;
         $user->save();
 

@@ -39,10 +39,18 @@
 
                         {{-- Image --}}
                         <div class="md:col-span-6">
-                            <x-input-label for="image" :value="__('Image')" />
+                            <x-input-label for="image" :value="__('Main Image')" />
                             <x-text-input id="image" name="image" type="file" accept="image/*"
                                 class="mt-1 block w-full" />
                             <x-input-error :messages="$errors->get('image')" class="mt-2" />
+                        </div>
+
+                        {{-- Gallery --}}
+                        <div class="md:col-span-6">
+                            <x-input-label for="gallery" :value="__('Gallery (Multiple Images)')" />
+                            <x-text-input id="gallery" name="gallery[]" type="file" accept="image/*" multiple
+                                class="mt-1 block w-full" />
+                            <x-input-error :messages="$errors->get('gallery')" class="mt-2" />
                         </div>
 
                         {{-- Active --}}

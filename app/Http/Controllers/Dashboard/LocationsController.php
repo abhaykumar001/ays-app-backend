@@ -12,7 +12,7 @@ class LocationsController extends Controller
     {
         $this->middleware('permission:view_locations')->only(['index', 'show']);
         $this->middleware('permission:create_locations')->only(['create', 'store']);
-        $this->middleware('permission:edit_locations')->only(['edit', 'update', 'toggleStatus']);
+        $this->middleware('permission:edit_locations')->only(['edit', 'update', 'toggleStatus', 'destroyMedia']);
         $this->middleware('permission:delete_locations')->only(['destroy']);
     }
 
@@ -55,6 +55,8 @@ class LocationsController extends Controller
             'sort_order'  => 'nullable|integer|min:0',
             'is_active'   => 'nullable|boolean',
             'image'       => 'nullable|image|max:5120',
+            'gallery'     => 'nullable|array|max:10',
+            'gallery.*'   => 'nullable|image|max:5120',
         ], $this->openingHoursRules()));
 
         $location = Location::create([
@@ -73,6 +75,12 @@ class LocationsController extends Controller
 
         if ($request->hasFile('image')) {
             $location->addMediaFromRequest('image')->toMediaCollection('images');
+        }
+
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $file) {
+                $location->addMedia($file)->toMediaCollection('images');
+            }
         }
 
         return redirect()->route('locations.index')
@@ -99,6 +107,8 @@ class LocationsController extends Controller
             'sort_order'  => 'nullable|integer|min:0',
             'is_active'   => 'nullable|boolean',
             'image'       => 'nullable|image|max:5120',
+            'gallery'     => 'nullable|array|max:10',
+            'gallery.*'   => 'nullable|image|max:5120',
         ], $this->openingHoursRules()));
 
         $location->update([
@@ -116,8 +126,19 @@ class LocationsController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $location->clearMediaCollection('images');
-            $location->addMediaFromRequest('image')->toMediaCollection('images');
+            // Only remove the current main image (first item in the shared
+            // 'images' collection), not the whole collection — clearing it
+            // here would wipe the gallery too.
+            $location->getFirstMedia('images')?->delete();
+            $newMainImage = $location->addMediaFromRequest('image')->toMediaCollection('images');
+            $newMainImage->order_column = 0;
+            $newMainImage->save();
+        }
+
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $file) {
+                $location->addMedia($file)->toMediaCollection('images');
+            }
         }
 
         return redirect()->route('locations.index')
@@ -133,6 +154,18 @@ class LocationsController extends Controller
         return redirect()->back()
             ->with('status', 'success')
             ->with('message', 'Location deleted.');
+    }
+
+    public function destroyMedia(Location $location, int $media)
+    {
+        $mediaItem = $location->media()->where('id', $media)->firstOrFail();
+        $mediaItem->delete();
+
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('status', 'success')->with('message', 'File removed successfully.');
     }
 
     public function toggleStatus(string $id)

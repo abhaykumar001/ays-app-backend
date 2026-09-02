@@ -45,14 +45,42 @@
 
                         {{-- Image --}}
                         <div class="md:col-span-6">
-                            <x-input-label for="image" :value="__('Image (leave blank to keep current)')" />
-                            @if ($location->getFirstMediaUrl('images'))
-                                <img src="{{ $location->getFirstMediaUrl('images', 'resize') ?: $location->getFirstMediaUrl('images') }}"
-                                     class="mt-2 mb-3 w-40 h-28 object-cover rounded border" alt="Current image">
+                            <x-input-label for="image" :value="__('Main Image (upload a new one to replace it)')" />
+                            @if ($location->getFirstMedia('images'))
+                                <div class="relative w-40 h-28 mt-2 mb-3" data-media-item="{{ $location->getFirstMedia('images')->id }}">
+                                    <img src="{{ $location->getFirstMediaUrl('images', 'resize') ?: $location->getFirstMediaUrl('images') }}"
+                                         class="w-full h-full object-cover rounded border" alt="Current image">
+                                    <button type="button" onclick="removeLocationMedia({{ $location->getFirstMedia('images')->id }}, this)"
+                                        class="absolute top-1 right-1 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 text-xs shadow">&times;</button>
+                                </div>
                             @endif
                             <x-text-input id="image" name="image" type="file" accept="image/*"
                                 class="mt-1 block w-full" />
                             <x-input-error :messages="$errors->get('image')" class="mt-2" />
+                        </div>
+
+                        {{-- Existing Gallery Images --}}
+                        @if ($location->getMedia('images')->skip(1)->isNotEmpty())
+                            <div class="md:col-span-12">
+                                <x-input-label :value="__('Current Gallery Images')" />
+                                <div class="flex flex-wrap gap-2 mt-1">
+                                    @foreach ($location->getMedia('images')->skip(1) as $media)
+                                        <div class="relative w-24 h-24" data-media-item="{{ $media->id }}">
+                                            <img src="{{ $media->getUrl() }}" class="w-full h-full object-cover rounded" alt="Gallery image">
+                                            <button type="button" onclick="removeLocationMedia({{ $media->id }}, this)"
+                                                class="absolute top-1 right-1 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 text-xs shadow">&times;</button>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- Gallery --}}
+                        <div class="md:col-span-6">
+                            <x-input-label for="gallery" :value="__('Add Gallery Images (up to 10 at a time — appended to existing)')" />
+                            <x-text-input id="gallery" name="gallery[]" type="file" accept="image/*" multiple
+                                class="mt-1 block w-full" />
+                            <x-input-error :messages="$errors->get('gallery')" class="mt-2" />
                         </div>
 
                         {{-- Active --}}
@@ -184,6 +212,23 @@
         function setLocationCoordinates(lat, lng) {
             document.getElementById("latitude").value = lat;
             document.getElementById("longitude").value = lng;
+        }
+
+        function removeLocationMedia(mediaId, el) {
+            if (!confirm('Remove this file? This cannot be undone.')) return;
+            fetch("{{ url('dashboard/locations/' . $location->id . '/media') }}/" + mediaId, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+            }).then(function (response) {
+                if (!response.ok) throw new Error('Request failed');
+                const wrapper = el.closest('[data-media-item]') || el;
+                wrapper.remove();
+            }).catch(function () {
+                alert('Could not remove the file. Please try again.');
+            });
         }
     </script>
 
